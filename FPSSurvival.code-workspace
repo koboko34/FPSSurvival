@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"name": "FPSSurvival",
+			"path": "."
+		},
+		{
+			"name": "UE5",
+			"path": "C:\\Unreal Engine\\UE_5.0"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off",
+		"C_Cpp.default.forcedInclude": [
+			"${default}",
+			"C:\\Unreal Engine\\Projects\\FPSSurvival\\FPSSurvival\\Intermediate\\Build\\Win64\\UnrealEditor\\Development\\FPSSurvival\\Definitions.FPSSurvival.h",
+			"C:\\Unreal Engine\\Projects\\FPSSurvival\\FPSSurvival\\Intermediate\\Build\\Win64\\FPSSurvivalEditor\\Development\\Engine\\SharedPCH.Engine.ShadowErrors.h"
+		]
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"ms-dotnettools.csharp"
+		]
+	}
+}
