@@ -11,6 +11,7 @@
 #include "Rifle.h"
 #include "Launcher.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AbilityPortal.h"
 
 
 
@@ -35,6 +36,8 @@ AShooterCharacter::AShooterCharacter()
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
 
 	GetCharacterMovement()->MaxWalkSpeed = StrafeSpeed;
+
+	ActivePlayMode = EPlayMode::MODE_Default;
 
 }
 
@@ -103,7 +106,8 @@ void AShooterCharacter::SelectActiveGun(ABaseGun* newActiveGun)
 
 void AShooterCharacter::ToggleActiveGun()
 {
-	
+	ActiveGun->StopShoot();
+
 	if (ActiveGun == PrimaryGun)
 	{
 		SelectActiveGun(SecondaryGun);
@@ -161,15 +165,63 @@ void AShooterCharacter::OnShootPressed()
 	{
 		return;
 	}
+
+	if (ActivePlayMode == EPlayMode::MODE_Default)
+	{
+		bIsShootPressed = true;
+		ActiveGun->StartShoot();
+	}
+
+	if (ActivePlayMode == EPlayMode::MODE_Ability)
+	{
+		bool bSuccess;
+		AAbilityPortal* Portal = TracePortal(bSuccess);
+
+		if (!bSuccess)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Can't spawn portal"));
+			return;
+		}
+
+		if (SecondPortal != nullptr)
+		{
+			FirstPortal = nullptr;
+			SecondPortal = nullptr;
+		}
+		if (FirstPortal == nullptr)
+		{
+			FirstPortal = Portal;
+		}
+		else
+		{
+			SecondPortal = Portal;
+
+			FirstPortal->SetupPortal(SecondPortal);
+			SecondPortal->SetupPortal(FirstPortal);
+		}
+	}
 	
-	bIsShootPressed = true;
-	ActiveGun->StartShoot();
 }
 
 void AShooterCharacter::OnShootReleased()
 {
 	bIsShootPressed = false;
 	ActiveGun->StopShoot();
+}
+
+void AShooterCharacter::TogglePlayMode()
+{
+	if (ActivePlayMode == EPlayMode::MODE_Default)
+	{
+		ActiveGun->StopShoot();
+		ActivePlayMode = EPlayMode::MODE_Ability;
+		UE_LOG(LogTemp, Warning, TEXT("Ability mode"));
+	}
+	else
+	{
+		ActivePlayMode = EPlayMode::MODE_Default;
+		UE_LOG(LogTemp, Warning, TEXT("Default mode"));
+	}
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -213,7 +265,54 @@ void AShooterCharacter::StopSprint()
 
 void AShooterCharacter::OnAbilityOne()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Ability 1"));
+	TogglePlayMode();
+	// UE_LOG(LogTemp, Warning, TEXT("Ability 1"));
+}
+
+AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
+{
+	FHitResult OutHit;
+	AAbilityPortal* SpawnedPortal = nullptr;
+	FVector Start = FirstPersonCameraComponent->GetComponentLocation();
+	FVector End = Start + (FirstPersonCameraComponent->GetForwardVector() * AbilityRange);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(PrimaryGun);
+	Params.AddIgnoredActor(SecondaryGun);
+	GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+
+	if (AbilityPortalClass == nullptr)
+	{
+		bSuccess = false;
+		return nullptr;
+	}
+
+	if (OutHit.IsValidBlockingHit())
+	{
+		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 24, 8, FColor::Purple, false, 5);
+		
+		SpawnedPortal = GetWorld()->SpawnActor<AAbilityPortal>
+		(
+			AbilityPortalClass,
+			OutHit.ImpactPoint,
+			FRotator(0, 0, 0)
+		);
+		// UE_LOG(LogTemp, Warning, TEXT("Spawn portal called"));
+	}
+	
+	if (SpawnedPortal == nullptr)
+	{
+		bSuccess = false;
+		return nullptr;
+	}
+	bSuccess = true;
+	return SpawnedPortal;
+}
+
+void AShooterCharacter::ClearPortalsRef()
+{
+	FirstPortal = nullptr;
+	SecondPortal = nullptr;
 }
 
 void AShooterCharacter::OnAbilityTwo()

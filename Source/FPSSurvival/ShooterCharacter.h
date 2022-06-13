@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayMode.h"
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
@@ -11,8 +12,7 @@ class USkeletalMeshComponent;
 class USceneComponent;
 class UCameraComponent;
 class ABaseGun;
-// class UAnimMontage;
-// class USoundBase;
+class AAbilityPortal;
 
 UCLASS(config=Game)
 class AShooterCharacter : public ACharacter
@@ -49,6 +49,11 @@ private:
 	void OnAbilityTwo();
 	void OnAbilityUlt();
 
+	void TogglePlayMode();
+
+	AAbilityPortal* TracePortal(bool& bSuccess);
+	void ClearPortalsRef();
+
 	UFUNCTION()
 	void SelectActiveGun(ABaseGun* newActiveGun);
 	void ToggleActiveGun();
@@ -68,6 +73,13 @@ private:
 
 	bool bIsShootPressed = false;
 	bool bIsSprinting = false;
+
+	EPlayMode ActivePlayMode;
+	float AbilityRange = 1000;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AAbilityPortal> AbilityPortalClass;
+	AAbilityPortal* FirstPortal;
+	AAbilityPortal* SecondPortal;
 
 public:
 	/** Returns Mesh1P subobject **/
