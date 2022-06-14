@@ -52,6 +52,7 @@ private:
 	void TogglePlayMode();
 
 	AAbilityPortal* TracePortal(bool& bSuccess);
+	void HandlePortalSpawn();
 	void ClearPortalsRef();
 
 	UFUNCTION()
@@ -75,17 +76,26 @@ private:
 	bool bIsSprinting = false;
 
 	EPlayMode ActivePlayMode;
-	float AbilityRange = 1000;
+	float AbilityRange = 2000;
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AAbilityPortal> AbilityPortalClass;
 	AAbilityPortal* FirstPortal;
 	AAbilityPortal* SecondPortal;
+	float AbilityOneCooldown = 10;
+	float AbilityOneCurrentCooldown = 0;
+	FTimerHandle AbilityOneCooldownHandle;
+	bool bAbilityOneReady = true;
 
 public:
+	virtual void Tick(float DeltaTime) override;
+	
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetAbilityOneCooldown() const { return AbilityOneCurrentCooldown; }
 	
 	void StopSprint();
 

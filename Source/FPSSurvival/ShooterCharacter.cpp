@@ -80,6 +80,24 @@ void AShooterCharacter::BeginPlay()
 	InputComponent->BindAction<FSelectActiveGunDelegate>("SelectWeapon2", IE_Pressed, this, &AShooterCharacter::SelectActiveGun, SecondaryGun);
 }
 
+void AShooterCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	// UE_LOG(LogTemp, Warning, TEXT("current cd: %f"), AbilityOneCurrentCooldown);
+
+	if (!bAbilityOneReady)
+	{
+		AbilityOneCurrentCooldown = AbilityOneCurrentCooldown - DeltaTime;
+
+		if (AbilityOneCurrentCooldown <= 0)
+		{
+			AbilityOneCurrentCooldown = 0;
+			bAbilityOneReady = true;
+		}
+	}
+}
+
 bool AShooterCharacter::IsSameGun(ABaseGun* SwapTargetGun)
 {
 	if (SwapTargetGun == ActiveGun)
@@ -174,33 +192,11 @@ void AShooterCharacter::OnShootPressed()
 
 	if (ActivePlayMode == EPlayMode::MODE_Ability)
 	{
-		bool bSuccess;
-		AAbilityPortal* Portal = TracePortal(bSuccess);
-
-		if (!bSuccess)
+		if (bAbilityOneReady)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Can't spawn portal"));
-			return;
-		}
-
-		if (SecondPortal != nullptr)
-		{
-			FirstPortal = nullptr;
-			SecondPortal = nullptr;
-		}
-		if (FirstPortal == nullptr)
-		{
-			FirstPortal = Portal;
-		}
-		else
-		{
-			SecondPortal = Portal;
-
-			FirstPortal->SetupPortal(SecondPortal);
-			SecondPortal->SetupPortal(FirstPortal);
+			HandlePortalSpawn();
 		}
 	}
-	
 }
 
 void AShooterCharacter::OnShootReleased()
@@ -265,8 +261,15 @@ void AShooterCharacter::StopSprint()
 
 void AShooterCharacter::OnAbilityOne()
 {
-	TogglePlayMode();
-	// UE_LOG(LogTemp, Warning, TEXT("Ability 1"));
+	if (bAbilityOneReady)
+	{
+		TogglePlayMode();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityOneCurrentCooldown);
+	}
+	
 }
 
 AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
@@ -299,6 +302,12 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 		);
 		// UE_LOG(LogTemp, Warning, TEXT("Spawn portal called"));
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target not in range"));
+		bSuccess = false;
+		return nullptr;
+	}
 	
 	if (SpawnedPortal == nullptr)
 	{
@@ -307,6 +316,43 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 	}
 	bSuccess = true;
 	return SpawnedPortal;
+}
+
+void AShooterCharacter::HandlePortalSpawn()
+{
+	bool bSuccess;
+	AAbilityPortal* Portal = TracePortal(bSuccess);
+
+	if (!bSuccess)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't spawn portal"));
+		return;
+	}
+
+	if (SecondPortal != nullptr)
+	{
+		ClearPortalsRef();
+	}
+	if (FirstPortal == nullptr)
+	{
+		// spawning first portal
+		FirstPortal = Portal;
+	}
+	else
+	{
+		// spawning second portal
+		SecondPortal = Portal;
+
+		FirstPortal->SetupPortal(SecondPortal);
+		SecondPortal->SetupPortal(FirstPortal);
+
+		AbilityOneCurrentCooldown = AbilityOneCooldown;
+		bAbilityOneReady = false;
+		ActivePlayMode = EPlayMode::MODE_Default;
+
+		GetWorldTimerManager().SetTimer(AbilityOneCooldownHandle, AbilityOneCooldown, false);
+
+	}
 }
 
 void AShooterCharacter::ClearPortalsRef()

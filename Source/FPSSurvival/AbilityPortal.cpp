@@ -4,6 +4,10 @@
 #include "AbilityPortal.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "AbilityProjectile.h"
+#include "TimerManager.h"
 
 // Sets default values
 AAbilityPortal::AAbilityPortal()
@@ -15,8 +19,10 @@ AAbilityPortal::AAbilityPortal()
 	SetRootComponent(Root);
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(Root);
-	PortalParticles = CreateDefaultSubobject<UNiagaraComponent>("Portal Particles");
-	PortalParticles->SetupAttachment(Mesh);
+	// PortalComp = CreateDefaultSubobject<UNiagaraComponent>("Portal Particles");
+	// PortalComp->SetupAttachment(Mesh);
+	// PortalParticleSystem = CreateDefaultSubobject<UNiagaraSystem>("Portal Particles");
+	// PortalParticleSystem->SetupAttachment(Mesh);
 	
 }
 
@@ -24,6 +30,11 @@ AAbilityPortal::AAbilityPortal()
 void AAbilityPortal::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// if (PortalParticleSystem)
+	// {
+	// 	PortalComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PortalParticleSystem, Mesh->GetComponentLocation(), GetActorRotation());
+	// }
 
 	Mesh->SetVisibility(false);	
 }
@@ -53,6 +64,43 @@ void AAbilityPortal::SetupPortal(AAbilityPortal* Partner)
 
 	SetActorRotation(AdjustedLookAtRotation);
 
+	HandleNiagaraSetup();
+
 	Mesh->SetVisibility(true);
+
+	FTimerHandle SpawnHandle;
+	FTimerDelegate SpawnDelegate = FTimerDelegate::CreateUObject(this, &AAbilityPortal::SpawnProjectile);
+
+	GetWorldTimerManager().SetTimer(SpawnHandle, SpawnDelegate, SpawnDelay, false);
+	
+}
+
+UStaticMeshComponent* AAbilityPortal::GetMesh()
+{
+	return Mesh;
+}
+
+void AAbilityPortal::SpawnProjectile()
+{
+	if (AbilityProjectileClass == nullptr)
+	{
+		return;
+	}
+
+	SpawnedProjectile = GetWorld()->SpawnActor<AAbilityProjectile>
+	(
+		AbilityProjectileClass,
+		Mesh->GetComponentLocation(),
+		GetActorRotation()
+	);
+
+	SpawnedProjectile->SetOwner(this);
+	SpawnedProjectile->SetTargetLocation(PartnerPortal->GetMesh()->GetComponentLocation());
+}
+
+void AAbilityPortal::HandleDestruction()
+{
+	HandleNiagaraDestruction();
+	Destroy();
 }
 
