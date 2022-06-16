@@ -46,6 +46,7 @@ private:
 	void OnSprint();
 
 	void OnAbilityOne();
+	void OnAbilityOneExit();
 	void OnAbilityTwo();
 	void OnAbilityUlt();
 

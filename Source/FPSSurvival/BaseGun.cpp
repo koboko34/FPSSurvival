@@ -94,12 +94,15 @@ USceneComponent* ABaseGun::GetMuzzle() const
 
 bool ABaseGun::CanShoot()
 {
-	if (Ammo > 0)
+	if (Ammo <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No ammo!"));
+		return false;
+	}
+	else if (!bIsReloading)
 	{
 		return true;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("No ammo!"));
 	return false;
 }
 
@@ -158,6 +161,7 @@ void ABaseGun::StartReload()
 	if (CanReload())
 	{
 		PlayerCharacter->StopSprint();
+		bIsReloading = true;
 		GetWorldTimerManager().SetTimer(ReloadHandle, ReloadDelegate, ReloadTime, false);
 		UE_LOG(LogTemp, Warning, TEXT("Reloading!"));
 	}
@@ -168,6 +172,7 @@ void ABaseGun::CancelReload()
 	if (ReloadHandle.IsValid())
 	{
 		GetWorldTimerManager().ClearTimer(ReloadHandle);
+		bIsReloading = false;
 		UE_LOG(LogTemp, Warning, TEXT("Reload cancelled!"));
 	}
 }
@@ -188,6 +193,7 @@ void ABaseGun::Reload()
 	}
 	
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
+	bIsReloading = false;
 	UE_LOG(LogTemp, Warning, TEXT("Reloaded!"));
 }
 

@@ -72,6 +72,8 @@ private:
 	FTimerHandle ReloadHandle;
 	FTimerDelegate ReloadDelegate;
 
+	bool bIsReloading = false;
+
 	
 
 };

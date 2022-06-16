@@ -120,6 +120,8 @@ void AShooterCharacter::SelectActiveGun(ABaseGun* newActiveGun)
 
 	ActiveGun = newActiveGun;
 	ActiveGun->GetMesh()->SetVisibility(true);
+
+	OnAbilityOneExit();
 }
 
 void AShooterCharacter::ToggleActiveGun()
@@ -159,6 +161,7 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Ability1", IE_Pressed, this, &AShooterCharacter::OnAbilityOne);
 	PlayerInputComponent->BindAction("Ability2", IE_Pressed, this, &AShooterCharacter::OnAbilityTwo);
 	PlayerInputComponent->BindAction("AbilityUlt", IE_Pressed, this, &AShooterCharacter::OnAbilityUlt);
+	PlayerInputComponent->BindAction("CancelAbility", IE_Pressed, this, &AShooterCharacter::OnAbilityOneExit);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterCharacter::MoveForward);
@@ -263,13 +266,37 @@ void AShooterCharacter::OnAbilityOne()
 {
 	if (bAbilityOneReady)
 	{
-		TogglePlayMode();
+		if (ActivePlayMode == EPlayMode::MODE_Default)
+		{
+			TogglePlayMode();
+		}
+		else
+		{
+			OnAbilityOneExit();
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityOneCurrentCooldown);
 	}
 	
+}
+
+void AShooterCharacter::OnAbilityOneExit()
+{
+	if (ActivePlayMode == EPlayMode::MODE_Ability)
+	{
+		if (FirstPortal)
+		{
+			FirstPortal->Destroy();
+		}
+		if (SecondPortal)
+		{
+			SecondPortal->Destroy();
+		}
+		ClearPortalsRef();
+		TogglePlayMode();
+	}
 }
 
 AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
