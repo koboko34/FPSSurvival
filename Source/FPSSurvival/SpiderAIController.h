@@ -17,4 +17,15 @@ class FPSSURVIVAL_API ASpiderAIController : public ABaseAIController
 protected:
 
 	virtual void BeginPlay() override;
+
+public:
+
+	virtual void Tick(float DeltaTime) override;
+
+private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
+	class UBehaviorTree* AIBehavior;
+
+	class ASpider* Spider;
 };
