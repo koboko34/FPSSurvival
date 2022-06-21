@@ -13,6 +13,7 @@ class USceneComponent;
 class UCameraComponent;
 class ABaseGun;
 class AAbilityPortal;
+class UHealth;
 
 UCLASS(config=Game)
 class AShooterCharacter : public ACharacter
@@ -27,8 +28,13 @@ class AShooterCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	UHealth* HealthComp;
+
 public:
 	AShooterCharacter();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	
 protected:

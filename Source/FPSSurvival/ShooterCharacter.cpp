@@ -12,6 +12,7 @@
 #include "Launcher.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilityPortal.h"
+#include "Health.h"
 
 
 
@@ -34,6 +35,8 @@ AShooterCharacter::AShooterCharacter()
 	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
+
+	HealthComp = CreateDefaultSubobject<UHealth>("Health Component");
 
 	GetCharacterMovement()->MaxWalkSpeed = StrafeSpeed;
 
@@ -396,4 +399,15 @@ void AShooterCharacter::OnAbilityTwo()
 void AShooterCharacter::OnAbilityUlt()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Ability Ult"));
+}
+
+float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	DamageToApply = FMath::Min(HealthComp->GetHealth(), DamageToApply);
+	HealthComp->SetHealth(HealthComp->GetHealth() - DamageToApply);
+
+	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
+
+	return DamageToApply;
 }
