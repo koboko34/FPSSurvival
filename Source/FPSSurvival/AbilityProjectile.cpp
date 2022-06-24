@@ -2,9 +2,11 @@
 
 
 #include "AbilityProjectile.h"
-// #include "GameFramework/ProjectileMovementComponent.h"
 #include "Math/UnrealMathVectorCommon.h"
 #include "AbilityPortal.h"
+#include "BaseEnemy.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AAbilityProjectile::AAbilityProjectile()
@@ -14,8 +16,10 @@ AAbilityProjectile::AAbilityProjectile()
 
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>("Capsule");
+	Capsule->SetupAttachment(Root);
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	Mesh->SetupAttachment(Root);
+	Mesh->SetupAttachment(Capsule);
 
 	// ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Projectile Movement");
 	// ProjectileMovementComponent->InitialSpeed = 100;
@@ -29,6 +33,8 @@ void AAbilityProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	StartLocation = GetActorLocation();
+
+	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AAbilityProjectile::OnBeginOverlap);
 	
 }
 
@@ -61,3 +67,22 @@ void AAbilityProjectile::SetTargetLocation(FVector NewTargetLocation)
 	TargetIsSet = true;
 }
 
+void AAbilityProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ABaseEnemy* HitEnemy = Cast<ABaseEnemy>(OtherActor);
+
+	if (HitEnemy == nullptr)
+	{
+		return;
+	}
+
+	if (HitEnemyArray.Contains<ABaseEnemy*>(HitEnemy))
+	{
+		return;
+	}
+
+	HitEnemyArray.Add(HitEnemy);
+	HitEnemy->ApplyStun(StunDuration);
+	UGameplayStatics::ApplyDamage(HitEnemy, Damage, UGameplayStatics::GetPlayerController(this, 0), this, UDamageType::StaticClass());
+}

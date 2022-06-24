@@ -5,6 +5,7 @@
 #include "ShooterCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ARifle::ARifle()
 {
@@ -43,6 +44,8 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
 	FHitResult Hit;
 	if (GunTrace(Hit, Start, End))
 	{
+		
+		UGameplayStatics::ApplyDamage(Hit.GetActor(), Damage, UGameplayStatics::GetPlayerController(this, 0), GetOwner(), UDamageType::StaticClass());
 		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 12, 8, FColor::Red, false, 5);
 		// UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), *Hit.GetComponent()->GetName());
 	}

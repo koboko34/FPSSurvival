@@ -4,6 +4,8 @@
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -28,6 +30,13 @@ void AProjectile::BeginPlay()
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &AProjectile::DestroyProjectile);
 	GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, 10, false);
+
+	if (GetOwner() == nullptr)
+	{
+		return;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Owner: %s"), *GetOwner()->GetActorNameOrLabel());
 }
 
 // Called every frame
@@ -39,12 +48,16 @@ void AProjectile::Tick(float DeltaTime)
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	TArray<AActor*> ActorsToIgnore;
+	UGameplayStatics::ApplyRadialDamageWithFalloff(this, MaxDamage, MinDamage, GetActorLocation(), InnerRadius, OuterRadius, DamageFalloff, UDamageType::StaticClass(), ActorsToIgnore, this);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius, 16, FColor::Purple, false, 5);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius + OuterRadius, 16, FColor::Blue, false, 5);
+	
 	DestroyProjectile();
 }
 
 void AProjectile::DestroyProjectile()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Boom!"));
 	Destroy();
 }
 

@@ -30,6 +30,11 @@ float UHealth::GetHealth() const
 	return Health;
 }
 
+float UHealth::GetMaxHealth() const
+{
+	return MaxHealth;
+}
+
 void UHealth::SetHealth(float NewHealth)
 {
 	Health = NewHealth;

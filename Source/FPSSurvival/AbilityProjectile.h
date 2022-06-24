@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "AbilityProjectile.generated.h"
 
-// class UProjectileMovementComponent;
+class ABaseEnemy;
 
 UCLASS()
 class FPSSURVIVAL_API AAbilityProjectile : public AActor
@@ -16,6 +16,8 @@ class FPSSURVIVAL_API AAbilityProjectile : public AActor
 	USceneComponent* Root;
 	UPROPERTY(EditInstanceOnly)
 	UStaticMeshComponent* Mesh;
+	UPROPERTY(EditInstanceOnly)
+	class UCapsuleComponent* Capsule;
 	// UPROPERTY(EditAnywhere)
 	// UProjectileMovementComponent* ProjectileMovementComponent;
 
@@ -36,6 +38,10 @@ public:
 
 private:
 
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	FVector StartLocation;
 	FVector TargetLocation;
 
@@ -44,5 +50,12 @@ private:
 	float TimeElapsed = 0;
 	UPROPERTY(EditAnywhere)
 	float LerpDuration = 0.5;
+
+	UPROPERTY(EditDefaultsOnly)
+	float Damage = 25;
+	UPROPERTY(EditDefaultsOnly)
+	float StunDuration = 5;
+
+	TArray<ABaseEnemy*> HitEnemyArray;
 
 };

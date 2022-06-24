@@ -41,6 +41,8 @@ protected:
 	float FireRate = 1 / (RPM / 60);
 	UPROPERTY(EditAnywhere, Category = "Gun")
 	float ReloadTime = 2;
+	UPROPERTY(EditAnywhere, Category = "Gun")
+	float Damage = 10;
 
 	bool CanShoot();
 	bool CanReload();

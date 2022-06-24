@@ -4,7 +4,6 @@
 #include "Spider.h"
 #include "Math/UnrealMathUtility.h"
 
-
 void ASpider::BeginPlay()
 {
     Super::BeginPlay();

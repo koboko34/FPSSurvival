@@ -5,6 +5,9 @@
 #include "ShooterCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Health.h"
+#include "Components/CapsuleComponent.h"
+#include "TimerManager.h"
+#include "MaxAmmo.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -20,7 +23,9 @@ ABaseEnemy::ABaseEnemy()
 void ABaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	ClearStunDelegate.BindUObject(this, &ABaseEnemy::ClearStun);
+	StartExitStunDelegate.BindUObject(this, &ABaseEnemy::StartExitStun);	
 }
 
 // Called every frame
@@ -28,6 +33,37 @@ void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	DamageToApply = FMath::Min(HealthComp->GetHealth(), DamageToApply);
+	DamageToApply = FMath::RoundHalfFromZero(DamageToApply);
+	HealthComp->SetHealth(HealthComp->GetHealth() - DamageToApply);
+
+	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
+
+	if (HealthComp->GetHealth() <= 0)
+	{
+		HandleDeath();
+	}
+
+	return DamageToApply;
+}
+
+void ABaseEnemy::HandleDeath()
+{
+	bIsAlive = false;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetEnableGravity(false);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetEnableGravity(false);
+
+	if (MaxAmmoClass)
+	{
+		GetWorld()->SpawnActor<AMaxAmmo>(MaxAmmoClass, GetActorLocation(), GetActorRotation());
+	}
 }
 
 void ABaseEnemy::Attack(float Range, float Damage, float Radius)
@@ -62,6 +98,24 @@ void ABaseEnemy::Attack(float Range, float Damage, float Radius)
 	}			
 }
 
+void ABaseEnemy::ApplyStun(float Duration)
+{
+	bIsStunned = true;
+	GetWorldTimerManager().SetTimer(StartExitStunHandle, StartExitStunDelegate, Duration, false);
+}
+
+void ABaseEnemy::StartExitStun()
+{
+	bCanExitStun = true;
+	GetWorldTimerManager().SetTimer(ClearStunHandle, ClearStunDelegate, 0.35, false);
+}
+
+void ABaseEnemy::ClearStun()
+{
+	bIsStunned = false;
+	bCanExitStun = false;
+}
+
 bool ABaseEnemy::IsAlive() const
 {
 	return bIsAlive;
@@ -70,6 +124,11 @@ bool ABaseEnemy::IsAlive() const
 bool ABaseEnemy::IsStunned() const
 {
 	return bIsStunned;
+}
+
+bool ABaseEnemy::CanExitStun() const
+{
+	return bCanExitStun;
 }
 
 

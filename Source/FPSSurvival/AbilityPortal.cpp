@@ -46,13 +46,6 @@ void AAbilityPortal::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void AAbilityPortal::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
 void AAbilityPortal::SetupPortal(AAbilityPortal* Partner)
 {
 	PartnerPortal = Partner;

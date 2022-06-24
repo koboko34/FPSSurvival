@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilityPortal.h"
 #include "Health.h"
+#include "Projectile.h"
 
 
 
@@ -269,14 +270,16 @@ void AShooterCharacter::OnAbilityOne()
 {
 	if (bAbilityOneReady)
 	{
-		if (ActivePlayMode == EPlayMode::MODE_Default)
-		{
-			TogglePlayMode();
-		}
-		else
-		{
-			OnAbilityOneExit();
-		}
+		HandlePortalSpawn();
+		
+		// if (ActivePlayMode == EPlayMode::MODE_Default)
+		// {
+		// 	TogglePlayMode();
+		// }
+		// else
+		// {
+		// 	OnAbilityOneExit();
+		// }
 	}
 	else
 	{
@@ -312,7 +315,7 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(PrimaryGun);
 	Params.AddIgnoredActor(SecondaryGun);
-	GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+	GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_GameTraceChannel2, Params);
 
 	if (AbilityPortalClass == nullptr)
 	{
@@ -330,7 +333,6 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 			OutHit.ImpactPoint,
 			FRotator(0, 0, 0)
 		);
-		// UE_LOG(LogTemp, Warning, TEXT("Spawn portal called"));
 	}
 	else
 	{
@@ -378,7 +380,7 @@ void AShooterCharacter::HandlePortalSpawn()
 
 		AbilityOneCurrentCooldown = AbilityOneCooldown;
 		bAbilityOneReady = false;
-		ActivePlayMode = EPlayMode::MODE_Default;
+		// ActivePlayMode = EPlayMode::MODE_Default;
 
 		GetWorldTimerManager().SetTimer(AbilityOneCooldownHandle, AbilityOneCooldown, false);
 
@@ -404,10 +406,28 @@ void AShooterCharacter::OnAbilityUlt()
 float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+	AProjectile* Projectile = Cast<AProjectile>(DamageCauser);
+	if (Projectile)
+	{
+		DamageToApply = DamageToApply / 2;
+	}
+
 	DamageToApply = FMath::Min(HealthComp->GetHealth(), DamageToApply);
+	DamageToApply = FMath::RoundHalfFromZero(DamageToApply);
 	HealthComp->SetHealth(HealthComp->GetHealth() - DamageToApply);
 
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
 
+	if (HealthComp->GetHealth() <= 0)
+	{
+		HandleDeath();
+	}
+
 	return DamageToApply;
+}
+
+void AShooterCharacter::HandleDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player is dead"));
 }

@@ -67,6 +67,8 @@ private:
 	void ToggleActiveGun();
 	bool IsSameGun(ABaseGun* SwapTargetGun);
 
+	void HandleDeath();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Gun", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ABaseGun> PrimaryGunClass;
 	ABaseGun* PrimaryGun;
@@ -88,7 +90,7 @@ private:
 	TSubclassOf<AAbilityPortal> AbilityPortalClass;
 	AAbilityPortal* FirstPortal;
 	AAbilityPortal* SecondPortal;
-	float AbilityOneCooldown = 10;
+	float AbilityOneCooldown = 8;
 	float AbilityOneCurrentCooldown = 0;
 	FTimerHandle AbilityOneCooldownHandle;
 	bool bAbilityOneReady = true;
@@ -101,8 +103,10 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	float GetAbilityOneCooldown() const { return AbilityOneCurrentCooldown; }
+	UFUNCTION(BlueprintPure)
+	UHealth* GetHealthComponent() const { return HealthComp; }
 	
 	void StopSprint();
 

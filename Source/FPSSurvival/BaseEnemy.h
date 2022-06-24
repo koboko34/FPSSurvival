@@ -7,6 +7,7 @@
 #include "BaseEnemy.generated.h"
 
 class UHealth;
+class AMaxAmmo;
 
 UCLASS()
 class FPSSURVIVAL_API ABaseEnemy : public ACharacter
@@ -26,21 +27,40 @@ protected:
 	bool bIsAlive = true;
 	bool bIsStunned = false;
 
+	bool bCanExitStun = false;
+
+	void HandleDeath();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 	UFUNCTION(BlueprintCallable)
 	virtual void Attack(float Range, float Damage, float Radius);
 
-	UFUNCTION(BlueprintPure)
-	bool IsAlive() const;
+	UFUNCTION()
+	void ApplyStun(float Duration);
+	UFUNCTION()
+	void ClearStun();
+	FTimerHandle ClearStunHandle;
+	FTimerDelegate ClearStunDelegate;
+	UFUNCTION()
+	void StartExitStun();
+	FTimerHandle StartExitStunHandle;
+	FTimerDelegate StartExitStunDelegate;
 
 	UFUNCTION(BlueprintPure)
+	bool IsAlive() const;
+	UFUNCTION(BlueprintPure)
 	bool IsStunned() const;
+	UFUNCTION(BlueprintPure)
+	bool CanExitStun() const;	
 
 private:
 
-	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AMaxAmmo> MaxAmmoClass;
 
 };

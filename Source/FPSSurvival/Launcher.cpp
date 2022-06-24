@@ -47,6 +47,8 @@ void ALauncher::PullTrigger(AShooterCharacter* Player)
         GetMuzzle()->GetComponentLocation(),
         LookAtRotation
     );
+
+    Projectile->SetOwner(this);
 	
     // add sounds
 	// add SFX

@@ -8,13 +8,12 @@
 
 class UAnimMontage;
 
-/**
- * 
- */
 UCLASS()
 class FPSSURVIVAL_API ASpider : public ABaseEnemy
 {
 	GENERATED_BODY()
+
+public:
 
 protected:
 
