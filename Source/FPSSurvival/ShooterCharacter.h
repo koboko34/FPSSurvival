@@ -14,6 +14,8 @@ class UCameraComponent;
 class ABaseGun;
 class AAbilityPortal;
 class UHealth;
+class ARifle;
+class ALauncher;
 
 UCLASS(config=Game)
 class AShooterCharacter : public ACharacter
@@ -62,6 +64,8 @@ private:
 	void HandlePortalSpawn();
 	void ClearPortalsRef();
 
+	void EndAbilityUlt();
+
 	UFUNCTION()
 	void SelectActiveGun(ABaseGun* newActiveGun);
 	void ToggleActiveGun();
@@ -69,12 +73,18 @@ private:
 
 	void HandleDeath();
 
+	void OnInteract();
+
+
 	UPROPERTY(EditDefaultsOnly, Category = "Gun", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ABaseGun> PrimaryGunClass;
 	ABaseGun* PrimaryGun;
 	UPROPERTY(EditDefaultsOnly, Category = "Gun", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ABaseGun> SecondaryGunClass;
 	ABaseGun* SecondaryGun;
+
+	ARifle* RifleGun;
+	ALauncher* LauncherGun;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float SprintSpeed = 1200;
@@ -95,6 +105,19 @@ private:
 	FTimerHandle AbilityOneCooldownHandle;
 	bool bAbilityOneReady = true;
 
+	bool bAbilityTwoReady = true;
+	float AbilityTwoCooldown = 10;
+	float AbilityTwoCurrentCooldown = 0;
+	FTimerHandle AbilityTwoCooldownHandle;
+
+	bool bAbilityUltReady = true;
+	float AbilityUltCooldown = 15;
+	float AbilityUltCurrentCooldown = 0;
+	float AbilityUltDuration = 5;
+	FTimerHandle AbilityUltCooldownHandle;
+	FTimerHandle AbilityUltDurationHandle;
+	FTimerDelegate AbilityUltDurationDelegate;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	
@@ -106,13 +129,26 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetAbilityOneCooldown() const { return AbilityOneCurrentCooldown; }
 	UFUNCTION(BlueprintPure)
+	float GetAbilityTwoCooldown() const { return AbilityTwoCurrentCooldown; }
+	UFUNCTION(BlueprintPure)
+	float GetAbilityUltCooldown() const { return AbilityUltCurrentCooldown; }
+	UFUNCTION(BlueprintPure)
 	UHealth* GetHealthComponent() const { return HealthComp; }
+	ALauncher* GetLauncher() const { return LauncherGun; }
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void InteractTrace();
 	
 	void StopSprint();
+
+	void OnMaxAmmo();
 
 	UPROPERTY(BlueprintReadOnly)
 	ABaseGun* ActiveGun;
 	UPROPERTY(BlueprintReadOnly)
 	ABaseGun* InactiveGun;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsPlayerVisible = true;
 };
 

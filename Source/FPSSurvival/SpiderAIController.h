@@ -28,4 +28,6 @@ private:
 	class UBehaviorTree* AIBehavior;
 
 	class ASpider* Spider;
+
+	class AShooterCharacter* Player;
 };

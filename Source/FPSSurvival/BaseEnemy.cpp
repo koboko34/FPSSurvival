@@ -8,6 +8,9 @@
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 #include "MaxAmmo.h"
+#include "Math/UnrealMathUtility.h"
+#include "SurvivalGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -23,6 +26,8 @@ ABaseEnemy::ABaseEnemy()
 void ABaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SurvivalGameMode = Cast<ASurvivalGameMode>(UGameplayStatics::GetGameMode(this));
 
 	ClearStunDelegate.BindUObject(this, &ABaseEnemy::ClearStun);
 	StartExitStunDelegate.BindUObject(this, &ABaseEnemy::StartExitStun);	
@@ -49,6 +54,8 @@ float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const &Dama
 		HandleDeath();
 	}
 
+	SurvivalGameMode->AddPoints(10);
+
 	return DamageToApply;
 }
 
@@ -59,10 +66,14 @@ void ABaseEnemy::HandleDeath()
 	GetCapsuleComponent()->SetEnableGravity(false);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetEnableGravity(false);
+	SurvivalGameMode->AddPoints(100);
 
-	if (MaxAmmoClass)
+	if (FMath::RandRange(0, 100) < 25)
 	{
-		GetWorld()->SpawnActor<AMaxAmmo>(MaxAmmoClass, GetActorLocation(), GetActorRotation());
+		if (MaxAmmoClass)
+		{
+			GetWorld()->SpawnActor<AMaxAmmo>(MaxAmmoClass, GetActorLocation(), GetActorRotation());
+		}
 	}
 }
 
@@ -89,7 +100,7 @@ void ABaseEnemy::Attack(float Range, float Damage, float Radius)
 		// UE_LOG(LogTemp, Warning, TEXT("%s"), *HitArray[i].GetActor()->GetActorNameOrLabel());
 		AShooterCharacter* HitActor = Cast<AShooterCharacter>(HitArray[i].GetActor());
 
-		if (HitActor != nullptr)
+		if (HitActor != nullptr && HitActor->bIsPlayerVisible == true)
 		{
 			UGameplayStatics::ApplyDamage(HitActor, Damage, GetController(), this, UDamageType::StaticClass());
 			break;

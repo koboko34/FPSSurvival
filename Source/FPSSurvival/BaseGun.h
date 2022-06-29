@@ -32,8 +32,10 @@ protected:
 	int Ammo;
 	UPROPERTY(EditAnywhere, Category = "Gun")
 	int MagSize = 30;
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Gun")
-	int ReserveAmmo = 270;
+	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly, Category = "Gun")
+	int ReserveAmmo;
+	UPROPERTY(EditAnywhere, Category = "Gun")
+	int MaxReserveAmmo = 270;
 	UPROPERTY(EditAnywhere, Category = "Gun")
 	bool IsFullyAuto = true;
 	UPROPERTY(EditAnywhere, Category = "Gun")
@@ -47,7 +49,9 @@ protected:
 	bool CanShoot();
 	bool CanReload();
 
-	bool GunTrace(FHitResult& OutHit, FVector Start, FVector End);
+	bool GunTrace(TArray<FHitResult> &HitActorArray, FVector Start, FVector End);
+
+	class AShooterCharacter* PlayerCharacter;
 
 public:	
 	// virtual void Tick(float DeltaTime) override;
@@ -57,6 +61,13 @@ public:
 	void StartReload();
 	void Reload();
 	void CancelReload();
+	void OnMaxAmmo();
+
+	float GetDamage() const { return Damage; }
+	int GetAmmo() const { return Ammo; }
+
+	UFUNCTION(BlueprintPure)
+	float ReloadProgress() const;
 
 	USkeletalMeshComponent* GetMesh() const;
 	USceneComponent* GetMuzzle() const;
@@ -64,7 +75,6 @@ public:
 
 private:
 
-	class AShooterCharacter* PlayerCharacter;
 	class ARifle* Rifle;
 	class ALauncher* Launcher;
 
@@ -74,6 +84,7 @@ private:
 	FTimerHandle ReloadHandle;
 	FTimerDelegate ReloadDelegate;
 
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsReloading = false;
 
 	

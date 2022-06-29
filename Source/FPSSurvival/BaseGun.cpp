@@ -8,6 +8,7 @@
 #include "Rifle.h"
 #include "Launcher.h"
 #include "TimerManager.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ABaseGun::ABaseGun()
@@ -29,7 +30,7 @@ void ABaseGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Ammo = MagSize;
+	OnMaxAmmo();
 
 	ShootDelegate.BindUObject(this, &ABaseGun::Shoot);
 	ReloadDelegate.BindUObject(this, &ABaseGun::Reload);
@@ -72,6 +73,10 @@ void ABaseGun::Shoot()
 		}
 
 		Ammo--;
+		if (Ammo == 0)
+		{
+			StartReload();
+		}
 		UE_LOG(LogTemp, Warning, TEXT("%s Ammo: %i"), *GetActorNameOrLabel(), Ammo);
 		
 	}
@@ -107,16 +112,36 @@ bool ABaseGun::CanShoot()
 }
 
 
-bool ABaseGun::GunTrace(FHitResult& OutHit, FVector Start, FVector End)
+bool ABaseGun::GunTrace(TArray<FHitResult> &HitActorArray, FVector Start, FVector End)
 {
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(PlayerCharacter);
-	Params.AddIgnoredComponent(PlayerCharacter->GetCapsuleComponent());
-	Params.AddIgnoredComponent(Mesh);
-	GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+	// FCollisionQueryParams Params;
+	// Params.AddIgnoredActor(this);
+	// Params.AddIgnoredActor(PlayerCharacter);
+	// Params.AddIgnoredComponent(PlayerCharacter->GetCapsuleComponent());
+	// Params.AddIgnoredComponent(Mesh);
+	// GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(PlayerCharacter);
+	UKismetSystemLibrary::LineTraceMulti(
+		this,
+		Start,
+		End,
+		ETraceTypeQuery::TraceTypeQuery3,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::None,
+		HitActorArray,
+		true
+	);
 
-	return OutHit.IsValidBlockingHit();
+	if (HitActorArray.Num() > 0)
+	{
+		return true;
+	}
+
+	return false;
+	// return OutHit.IsValidBlockingHit();
 }
 
 void ABaseGun::StartShoot()
@@ -197,10 +222,13 @@ void ABaseGun::Reload()
 	UE_LOG(LogTemp, Warning, TEXT("Reloaded!"));
 }
 
-// Called every frame
-// void ABaseGun::Tick(float DeltaTime)
-// {
-// 	Super::Tick(DeltaTime);
+void ABaseGun::OnMaxAmmo()
+{
+	Ammo = MagSize;
+	ReserveAmmo = MaxReserveAmmo;
+}
 
-// }
-
+float ABaseGun::ReloadProgress() const
+{
+	return GetWorldTimerManager().GetTimerRemaining(ReloadHandle) / ReloadTime;
+}

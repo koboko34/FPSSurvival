@@ -27,6 +27,9 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	int Range = 20000;
+	float Range = 20000;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	int TargetPenCount = 5;
+
 	
 };

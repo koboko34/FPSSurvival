@@ -7,6 +7,7 @@
 #include "DrawDebugHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/CapsuleComponent.h"
 
 
 ALauncher::ALauncher()
@@ -30,7 +31,13 @@ void ALauncher::PullTrigger(AShooterCharacter* Player)
 	// UE_LOG(LogTemp, Warning, TEXT("%s Shooting!"), *GetActorNameOrLabel());
 
 	FHitResult Hit;
-	if (GunTrace(Hit, Start, End))
+    FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(PlayerCharacter);
+	Params.AddIgnoredComponent(PlayerCharacter->GetCapsuleComponent());
+	Params.AddIgnoredComponent(GetMesh());
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+	if (Hit.IsValidBlockingHit())
 	{
 		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 12, 8, FColor::Red, false, 5);
         Target = Hit.ImpactPoint;

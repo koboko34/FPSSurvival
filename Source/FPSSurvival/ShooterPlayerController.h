@@ -25,6 +25,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UUserWidget> HUDClass;
 
+	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* HUD;
 	
 };

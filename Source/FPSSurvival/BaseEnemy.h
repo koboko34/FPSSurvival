@@ -63,4 +63,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AMaxAmmo> MaxAmmoClass;
 
+	class ASurvivalGameMode* SurvivalGameMode;
 };

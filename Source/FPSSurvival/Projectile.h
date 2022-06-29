@@ -35,8 +35,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float TravelSpeed = 5000;
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float MaxDamage = 100;
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	float MaxDamage;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float MinDamage = 10;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
@@ -45,6 +45,9 @@ private:
 	float OuterRadius = 300;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float DamageFalloff = 1;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class ALauncher> LauncherClass;
 
 	UFUNCTION()
 	void DestroyProjectile();

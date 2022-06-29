@@ -4,6 +4,8 @@
 #include "BasePickUp.h"
 #include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "ShooterCharacter.h"
 
 // Sets default values
 ABasePickUp::ABasePickUp()
@@ -26,8 +28,13 @@ void ABasePickUp::BeginPlay()
 	FTimerHandle Handle;
 	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &ABasePickUp::DestroySelf);
 	GetWorldTimerManager().SetTimer(Handle, Delegate, 30, false);
-	
-	
+
+	PlayerCharacter = Cast<AShooterCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	if (PlayerCharacter == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerCharacter not set in %s"), *GetActorNameOrLabel());
+	}
 }
 
 // Called every frame

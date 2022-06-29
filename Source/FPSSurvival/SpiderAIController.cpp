@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Spider.h"
 #include "BrainComponent.h"
+#include "ShooterCharacter.h"
 
 
 void ASpiderAIController::BeginPlay()
@@ -25,6 +26,8 @@ void ASpiderAIController::BeginPlay()
     GetBlackboardComponent()->SetValueAsBool(TEXT("IsAlive"), true);
     GetBlackboardComponent()->SetValueAsBool(TEXT("IsStunned"), false);
 
+    Player = Cast<AShooterCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
 }
 
 void ASpiderAIController::Tick(float DeltaTime)
@@ -37,10 +40,13 @@ void ASpiderAIController::Tick(float DeltaTime)
         return;
     }
 
-    if (SpiderOwner->IsStunned() == false)
+    if (SpiderOwner->IsStunned() == false && Player->bIsPlayerVisible)
     {
-        APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-        GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+        GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), Player->GetActorLocation());
+    }
+    else
+    {
+        GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
     }
 
     GetBlackboardComponent()->SetValueAsBool(TEXT("IsAlive"), SpiderOwner->IsAlive());

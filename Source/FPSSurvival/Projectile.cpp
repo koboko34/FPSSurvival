@@ -6,6 +6,8 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Launcher.h"
+#include "ShooterCharacter.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -31,12 +33,27 @@ void AProjectile::BeginPlay()
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &AProjectile::DestroyProjectile);
 	GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, 10, false);
 
+	AShooterCharacter* PlayerCharacter = Cast<AShooterCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	SetOwner(PlayerCharacter->GetLauncher());
+
 	if (GetOwner() == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Projectile's owner is null"));
 		return;
 	}
 	
+
+	// TArray<AActor*> LauncherArray;
+	// if (LauncherClass != nullptr)
+	// {
+	// 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), LauncherClass, LauncherArray);
+	// 	UE_LOG(LogTemp, Warning, TEXT("%i"), LauncherArray.Num());
+	// }
+
+	
+	MaxDamage = Cast<ALauncher>(GetOwner())->GetDamage();
 	UE_LOG(LogTemp, Warning, TEXT("Owner: %s"), *GetOwner()->GetActorNameOrLabel());
+
 }
 
 // Called every frame

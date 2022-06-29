@@ -41,12 +41,31 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
 	// DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5);
 	// UE_LOG(LogTemp, Warning, TEXT("%s Shooting!"), *GetActorNameOrLabel());
 
-	FHitResult Hit;
-	if (GunTrace(Hit, Start, End))
+	TArray<FHitResult> HitArray;
+	TArray<AActor*> HitArraySorted;
+	int CurrentPenCount = 0;
+	if (GunTrace(HitArray, Start, End))
 	{
+		int i = 0;
+		while (i < HitArray.Num())
+		{
+			HitArraySorted.AddUnique(HitArray[i].GetActor());
+			DrawDebugSphere(GetWorld(), HitArray[i].ImpactPoint, 16, 8, FColor::Red, false, 5);
+			i++;
+		}
+
+		int index = 0;
+		while (index < HitArraySorted.Num() && CurrentPenCount < TargetPenCount)
+		{
+			UGameplayStatics::ApplyDamage(HitArraySorted[index], Damage * FMath::Pow(0.9, index), UGameplayStatics::GetPlayerController(this, 0), GetOwner(), UDamageType::StaticClass());
+
+			index++;
+			CurrentPenCount++;
+		}
 		
-		UGameplayStatics::ApplyDamage(Hit.GetActor(), Damage, UGameplayStatics::GetPlayerController(this, 0), GetOwner(), UDamageType::StaticClass());
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 12, 8, FColor::Red, false, 5);
+		
+		// UGameplayStatics::ApplyDamage(Hit.GetActor(), Damage, UGameplayStatics::GetPlayerController(this, 0), GetOwner(), UDamageType::StaticClass());
+		// DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 12, 8, FColor::Red, false, 5);
 		// UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), *Hit.GetComponent()->GetName());
 	}
 

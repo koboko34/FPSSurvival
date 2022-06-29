@@ -78,6 +78,11 @@ void AShooterCharacter::BeginPlay()
 		InactiveGun = SecondaryGun;
 	}
 
+	RifleGun = Cast<ARifle>(PrimaryGun);
+	LauncherGun = Cast<ALauncher>(SecondaryGun);
+
+	AbilityUltDurationDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::EndAbilityUlt);
+
 	// Bind select weapon bindings through delegate
 	DECLARE_DELEGATE_OneParam(FSelectActiveGunDelegate, ABaseGun*);
 	InputComponent->BindAction<FSelectActiveGunDelegate>("SelectWeapon1", IE_Pressed, this, &AShooterCharacter::SelectActiveGun, PrimaryGun);
@@ -98,6 +103,28 @@ void AShooterCharacter::Tick(float DeltaTime)
 		{
 			AbilityOneCurrentCooldown = 0;
 			bAbilityOneReady = true;
+		}
+	}
+
+	if (!bAbilityTwoReady)
+	{
+		AbilityTwoCurrentCooldown = AbilityTwoCurrentCooldown - DeltaTime;
+
+		if (AbilityTwoCurrentCooldown <= 0)
+		{
+			AbilityTwoCurrentCooldown = 0;
+			bAbilityTwoReady = true;
+		}
+	}
+
+	if (!bAbilityUltReady)
+	{
+		AbilityUltCurrentCooldown = AbilityUltCurrentCooldown - DeltaTime;
+
+		if (AbilityUltCurrentCooldown <= 0)
+		{
+			AbilityUltCurrentCooldown = 0;
+			bAbilityUltReady = true;
 		}
 	}
 }
@@ -124,7 +151,11 @@ void AShooterCharacter::SelectActiveGun(ABaseGun* newActiveGun)
 
 	ActiveGun = newActiveGun;
 	ActiveGun->GetMesh()->SetVisibility(true);
-
+	if (ActiveGun->GetAmmo() == 0)
+	{
+		ActiveGun->StartReload();
+	}
+	
 	OnAbilityOneExit();
 }
 
@@ -166,6 +197,8 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Ability2", IE_Pressed, this, &AShooterCharacter::OnAbilityTwo);
 	PlayerInputComponent->BindAction("AbilityUlt", IE_Pressed, this, &AShooterCharacter::OnAbilityUlt);
 	PlayerInputComponent->BindAction("CancelAbility", IE_Pressed, this, &AShooterCharacter::OnAbilityOneExit);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AShooterCharacter::OnInteract);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterCharacter::MoveForward);
@@ -395,12 +428,46 @@ void AShooterCharacter::ClearPortalsRef()
 
 void AShooterCharacter::OnAbilityTwo()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Ability 2"));
+	if (bAbilityTwoReady)
+	{
+		bAbilityTwoReady = false;
+
+		AbilityTwoCurrentCooldown = AbilityTwoCooldown;
+
+		UE_LOG(LogTemp, Warning, TEXT("Ability Two"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityTwoCurrentCooldown);
+	}
 }
 
 void AShooterCharacter::OnAbilityUlt()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Ability Ult"));
+	if (bAbilityUltReady)
+	{
+		bAbilityUltReady = false;
+
+		bIsPlayerVisible = false;
+		// add move speed
+
+		GetWorldTimerManager().SetTimer(AbilityUltDurationHandle, AbilityUltDurationDelegate, AbilityUltDuration, false);
+	
+		AbilityUltCurrentCooldown = AbilityUltCooldown;
+
+		UE_LOG(LogTemp, Warning, TEXT("Ability Ult"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityUltCurrentCooldown);
+	}
+
+}
+
+void AShooterCharacter::EndAbilityUlt()
+{
+	bIsPlayerVisible = true;
+	// return move speed to normal
 }
 
 float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -429,5 +496,18 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 
 void AShooterCharacter::HandleDeath()
 {
+	DisableInput(GetWorld()->GetFirstPlayerController());
 	UE_LOG(LogTemp, Warning, TEXT("Player is dead"));
+}
+
+void AShooterCharacter::OnMaxAmmo()
+{
+	ActiveGun->OnMaxAmmo();
+	InactiveGun->OnMaxAmmo();
+	ActiveGun->CancelReload();
+}
+
+void AShooterCharacter::OnInteract()
+{
+	InteractTrace();
 }
