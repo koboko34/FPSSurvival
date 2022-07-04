@@ -64,7 +64,10 @@ public:
 	void OnMaxAmmo();
 
 	float GetDamage() const { return Damage; }
+	UFUNCTION(BlueprintPure)
 	int GetAmmo() const { return Ammo; }
+	UFUNCTION(BlueprintPure)
+	int GetReserveAmmo() const { return ReserveAmmo; }
 
 	UFUNCTION(BlueprintPure)
 	float ReloadProgress() const;
@@ -87,6 +90,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsReloading = false;
 
-	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* MuzzleFlash;
 
 };

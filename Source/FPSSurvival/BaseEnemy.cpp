@@ -11,6 +11,7 @@
 #include "Math/UnrealMathUtility.h"
 #include "SurvivalGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "HealthUp.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -67,46 +68,62 @@ void ABaseEnemy::HandleDeath()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetEnableGravity(false);
 	SurvivalGameMode->AddPoints(100);
+	SurvivalGameMode->AddDeadEnemy(this);
+	SurvivalGameMode->RemoveFromSpiderCount();
 
-	if (FMath::RandRange(0, 100) < 25)
+	// spawning pickup
+	int i = FMath::RandRange(0, 99);
+	if (i < 5)
 	{
 		if (MaxAmmoClass)
 		{
 			GetWorld()->SpawnActor<AMaxAmmo>(MaxAmmoClass, GetActorLocation(), GetActorRotation());
+			return;
+		}
+	}
+	else if (i < 10 && i >= 5)
+	{
+		if (HealthUpClass)
+		{
+			GetWorld()->SpawnActor<AHealthUp>(HealthUpClass, GetActorLocation(), GetActorRotation());
+			return;
 		}
 	}
 }
 
 void ABaseEnemy::Attack(float Range, float Damage, float Radius)
 {
-	TArray<FHitResult> HitArray;
-	FVector Start = GetMesh()->GetComponentLocation();
-	FVector End = GetMesh()->GetRightVector() * Range;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	GetWorld()->SweepMultiByChannel(
-		HitArray,
-		Start,
-		End,
-		FQuat::Identity,
-		ECollisionChannel::ECC_Pawn,
-		FCollisionShape::MakeSphere(Radius),
-		Params
-	);
-
-	int i = 0;
-	while (i < HitArray.Num())
+	if (bIsAlive)
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("%s"), *HitArray[i].GetActor()->GetActorNameOrLabel());
-		AShooterCharacter* HitActor = Cast<AShooterCharacter>(HitArray[i].GetActor());
+		TArray<FHitResult> HitArray;
+		FVector Start = GetMesh()->GetComponentLocation();
+		FVector End = GetMesh()->GetRightVector() * Range;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+		GetWorld()->SweepMultiByChannel(
+			HitArray,
+			Start,
+			End,
+			FQuat::Identity,
+			ECollisionChannel::ECC_Pawn,
+			FCollisionShape::MakeSphere(Radius),
+			Params
+		);
 
-		if (HitActor != nullptr && HitActor->bIsPlayerVisible == true)
+		int i = 0;
+		while (i < HitArray.Num())
 		{
-			UGameplayStatics::ApplyDamage(HitActor, Damage, GetController(), this, UDamageType::StaticClass());
-			break;
-		}
-		i++;
-	}			
+			// UE_LOG(LogTemp, Warning, TEXT("%s"), *HitArray[i].GetActor()->GetActorNameOrLabel());
+			AShooterCharacter* HitActor = Cast<AShooterCharacter>(HitArray[i].GetActor());
+
+			if (HitActor != nullptr && HitActor->bIsPlayerVisible == true)
+			{
+				UGameplayStatics::ApplyDamage(HitActor, Damage, GetController(), this, UDamageType::StaticClass());
+				break;
+			}
+			i++;
+		}	
+	}		
 }
 
 void ABaseEnemy::ApplyStun(float Duration)

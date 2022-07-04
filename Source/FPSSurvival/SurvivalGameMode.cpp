@@ -2,7 +2,26 @@
 
 
 #include "SurvivalGameMode.h"
+#include "BaseEnemy.h"
+#include "Spider.h"
+#include "TimerManager.h"
 
+void ASurvivalGameMode::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (CustomStartRound == true)
+    {
+        Round--;
+    }
+    else
+    {
+        Round = 0;
+    }
+
+    NextRoundDelegate = FTimerDelegate::CreateUObject(this, &ASurvivalGameMode::NextRound);
+    PrepareNextRound();
+}
 
 int ASurvivalGameMode::GetPoints() const
 {
@@ -19,4 +38,103 @@ int ASurvivalGameMode::RemovePoints(int PointsToRemove)
 {
     Points = Points - PointsToRemove;
     return Points;
+}
+
+void ASurvivalGameMode::AddDeadEnemy(ABaseEnemy* DeadEnemy)
+{
+    DeadEnemies.Add(DeadEnemy);
+
+    if (DeadEnemies.Num() >= EnemyClearCount)
+    {
+        ClearDeadEnemies();
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("%i"), DeadEnemies.Num());
+}
+
+void ASurvivalGameMode::ClearDeadEnemies()
+{
+    for (int i = 0; i < 20; i++)
+    {
+        DeadEnemies[0]->Destroy();
+        DeadEnemies.RemoveAt(0);
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("Cleared dead enemies"));
+}
+
+void ASurvivalGameMode::StartRound(int RoundToStart)
+{
+    SpidersKilled = 0;
+    SpidersSpawned = 0;
+    SpidersToSpawn = RoundToStart * 10;
+
+    UE_LOG(LogTemp, Warning, TEXT("Starting Round %i"), Round);
+}
+
+void ASurvivalGameMode::PrepareNextRound()
+{
+    GetWorldTimerManager().SetTimer(NextRoundHandle, NextRoundDelegate, 5, false);
+}
+
+void ASurvivalGameMode::NextRound()
+{
+    Round++;
+    StartRound(Round);
+}
+
+int ASurvivalGameMode::AddToSpiderCount(bool bIsValid)
+{
+    if (bIsValid)
+    {
+        SpidersSpawned++;
+        SpidersAlive++;
+    }
+
+    return SpidersAlive;
+}
+
+int ASurvivalGameMode::RemoveFromSpiderCount()
+{
+    SpidersAlive--;
+    SpidersKilled++;
+
+    if (SpidersKilled == SpidersToSpawn)
+    {
+        PrepareNextRound();
+        UE_LOG(LogTemp, Warning, TEXT("Round ended. Preparing next round!"));
+    }
+    return SpidersAlive;
+}
+
+bool ASurvivalGameMode::ShouldSpawn() const
+{
+    if (SpidersToSpawn > SpidersSpawned && SpidersAlive < SpiderLimit)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool ASurvivalGameMode::SpawnSpider(FVector SpawnLocation)
+{
+    if (SpiderClass == nullptr)
+    {
+        return false;
+    }
+    
+    ASpider* SpawnedSpider = GetWorld()->SpawnActor<ASpider>(
+        SpiderClass,
+        SpawnLocation,
+        FRotator::ZeroRotator
+    );
+
+    if (SpawnedSpider == nullptr)
+    {
+        return false;
+    }
+
+    AddToSpiderCount(true);
+
+    return true;
 }

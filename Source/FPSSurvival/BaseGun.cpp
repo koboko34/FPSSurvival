@@ -9,6 +9,7 @@
 #include "Launcher.h"
 #include "TimerManager.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABaseGun::ABaseGun()
@@ -77,7 +78,13 @@ void ABaseGun::Shoot()
 		{
 			StartReload();
 		}
-		UE_LOG(LogTemp, Warning, TEXT("%s Ammo: %i"), *GetActorNameOrLabel(), Ammo);
+		// UE_LOG(LogTemp, Warning, TEXT("%s Ammo: %i"), *GetActorNameOrLabel(), Ammo);
+
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
+		}
+		
 		
 	}
 }

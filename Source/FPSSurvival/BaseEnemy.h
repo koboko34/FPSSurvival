@@ -8,6 +8,7 @@
 
 class UHealth;
 class AMaxAmmo;
+class AHealthUp;
 
 UCLASS()
 class FPSSURVIVAL_API ABaseEnemy : public ACharacter
@@ -62,6 +63,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AMaxAmmo> MaxAmmoClass;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AHealthUp> HealthUpClass;
 
 	class ASurvivalGameMode* SurvivalGameMode;
 };

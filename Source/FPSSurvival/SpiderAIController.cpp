@@ -40,6 +40,11 @@ void ASpiderAIController::Tick(float DeltaTime)
         return;
     }
 
+    if (Player == nullptr)
+    {
+        return;
+    }
+    
     if (SpiderOwner->IsStunned() == false && Player->bIsPlayerVisible)
     {
         GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), Player->GetActorLocation());

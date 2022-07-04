@@ -81,6 +81,7 @@ void AShooterCharacter::BeginPlay()
 	RifleGun = Cast<ARifle>(PrimaryGun);
 	LauncherGun = Cast<ALauncher>(SecondaryGun);
 
+	AbilityTwoTickDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::AbilityTwoTick);
 	AbilityUltDurationDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::EndAbilityUlt);
 
 	// Bind select weapon bindings through delegate
@@ -434,11 +435,33 @@ void AShooterCharacter::OnAbilityTwo()
 
 		AbilityTwoCurrentCooldown = AbilityTwoCooldown;
 
+		CurrentTick = 0;
+
+		GetWorldTimerManager().SetTimer(AbilityTwoTickHandle, AbilityTwoTickDelegate, 2, true);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Two"));
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityTwoCurrentCooldown);
+	}
+}
+
+void AShooterCharacter::AbilityTwoTick()
+{
+	CurrentTick++;
+
+	HealthComp->SetHealth(HealthComp->GetHealth() + HealthPerTick);
+	if (HealthComp->GetHealth() >= HealthComp->GetMaxHealth())
+	{
+		HealthComp->SetHealth(HealthComp->GetMaxHealth());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
+
+	if (CurrentTick >= TickLimit)
+	{
+		GetWorldTimerManager().ClearTimer(AbilityTwoTickHandle);
+		UE_LOG(LogTemp, Warning, TEXT("Ability two ended"));
 	}
 }
 
@@ -505,6 +528,22 @@ void AShooterCharacter::OnMaxAmmo()
 	ActiveGun->OnMaxAmmo();
 	InactiveGun->OnMaxAmmo();
 	ActiveGun->CancelReload();
+}
+
+bool AShooterCharacter::OnHealthUp(float HealthToAdd)
+{	
+	if (HealthComp->GetHealth() == HealthComp->GetMaxHealth())
+	{
+		return false;
+	}
+	
+	HealthComp->SetHealth(HealthComp->GetHealth() + HealthToAdd);
+
+	if (HealthComp->GetHealth() > HealthComp->GetMaxHealth())
+	{
+		HealthComp->SetHealth(HealthComp->GetMaxHealth());
+	}
+	return true;
 }
 
 void AShooterCharacter::OnInteract()

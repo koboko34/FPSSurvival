@@ -6,9 +6,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "SurvivalGameMode.generated.h"
 
-/**
- * 
- */
+class ABaseEnemy;
+class ASpider;
+
 UCLASS()
 class FPSSURVIVAL_API ASurvivalGameMode : public AGameModeBase
 {
@@ -22,10 +22,63 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int RemovePoints(int PointsToRemove);
 
+	void AddDeadEnemy(ABaseEnemy* DeadEnemy);
+
+	UPROPERTY(BlueprintReadWrite)
+	int SpidersAlive = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int SpiderLimit = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int Round = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int SpidersToSpawn = 0;
+	UPROPERTY(BlueprintReadWrite)
+	int SpidersSpawned = 0;
+	UPROPERTY(BlueprintReadWrite)
+	int SpidersKilled = 0;
+
+	UFUNCTION(BlueprintCallable)
+	void StartRound(int RoundToStart);
+	UFUNCTION(BlueprintCallable)
+	void NextRound();
+
+	UFUNCTION(BlueprintCallable)
+	bool SpawnSpider(FVector SpawnLocation);
+
+	UFUNCTION(BlueprintCallable)
+	int AddToSpiderCount(bool bIsValid);
+	UFUNCTION(BlueprintCallable)
+	int RemoveFromSpiderCount();
+
+	UFUNCTION(BlueprintPure)
+	bool ShouldSpawn() const;
+
+	void PrepareNextRound();
+
+	UPROPERTY(EditAnywhere)
+	bool CustomStartRound = false;
+
+	UFUNCTION(BlueprintPure)
+	int GetRound() const { return Round; }
+
 protected:
+
+	virtual void BeginPlay() override;
 
 private:
 
-	int Points = 1000;
+	void ClearDeadEnemies();
+
+	int Points = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ASpider> SpiderClass;
+
+	int EnemyClearCount = 25;
+	TArray<ABaseEnemy*> DeadEnemies;
+
+	FTimerHandle NextRoundHandle;
+	FTimerDelegate NextRoundDelegate;
 	
 };

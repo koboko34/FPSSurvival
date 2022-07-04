@@ -30,6 +30,8 @@ private:
 	float Range = 20000;
 	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	int TargetPenCount = 5;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* ImpactParticle;
 
 	
 };

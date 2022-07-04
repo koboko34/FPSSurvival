@@ -64,6 +64,8 @@ private:
 	void HandlePortalSpawn();
 	void ClearPortalsRef();
 
+	void AbilityTwoTick();
+
 	void EndAbilityUlt();
 
 	UFUNCTION()
@@ -100,19 +102,31 @@ private:
 	TSubclassOf<AAbilityPortal> AbilityPortalClass;
 	AAbilityPortal* FirstPortal;
 	AAbilityPortal* SecondPortal;
+	
+	bool bAbilityOneReady = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	float AbilityOneCooldown = 8;
 	float AbilityOneCurrentCooldown = 0;
 	FTimerHandle AbilityOneCooldownHandle;
-	bool bAbilityOneReady = true;
-
+	
 	bool bAbilityTwoReady = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	float AbilityTwoCooldown = 10;
 	float AbilityTwoCurrentCooldown = 0;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
+	float AbilityTwoDuration = 5;
 	FTimerHandle AbilityTwoCooldownHandle;
+	FTimerHandle AbilityTwoTickHandle;
+	FTimerDelegate AbilityTwoTickDelegate;
+	int TickLimit = 10;
+	int CurrentTick = 0;
+	float HealthPerTick = 5;
 
 	bool bAbilityUltReady = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	float AbilityUltCooldown = 15;
 	float AbilityUltCurrentCooldown = 0;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	float AbilityUltDuration = 5;
 	FTimerHandle AbilityUltCooldownHandle;
 	FTimerHandle AbilityUltDurationHandle;
@@ -134,7 +148,13 @@ public:
 	float GetAbilityUltCooldown() const { return AbilityUltCurrentCooldown; }
 	UFUNCTION(BlueprintPure)
 	UHealth* GetHealthComponent() const { return HealthComp; }
+	UFUNCTION(BlueprintPure)
 	ALauncher* GetLauncher() const { return LauncherGun; }
+	UFUNCTION(BlueprintPure)
+	ABaseGun* GetActiveGun() const { return ActiveGun; }
+	UFUNCTION(BlueprintPure)
+	ABaseGun* GetInactiveGun() const { return InactiveGun; }
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void InteractTrace();
@@ -142,6 +162,7 @@ public:
 	void StopSprint();
 
 	void OnMaxAmmo();
+	bool OnHealthUp(float HealthToAdd);
 
 	UPROPERTY(BlueprintReadOnly)
 	ABaseGun* ActiveGun;
