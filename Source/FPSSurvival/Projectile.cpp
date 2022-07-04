@@ -52,7 +52,7 @@ void AProjectile::BeginPlay()
 
 	
 	MaxDamage = Cast<ALauncher>(GetOwner())->GetDamage();
-	UE_LOG(LogTemp, Warning, TEXT("Owner: %s"), *GetOwner()->GetActorNameOrLabel());
+	// UE_LOG(LogTemp, Warning, TEXT("Owner: %s"), *GetOwner()->GetActorNameOrLabel());
 
 }
 
@@ -67,8 +67,18 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 {
 	TArray<AActor*> ActorsToIgnore;
 	UGameplayStatics::ApplyRadialDamageWithFalloff(this, MaxDamage, MinDamage, GetActorLocation(), InnerRadius, OuterRadius, DamageFalloff, UDamageType::StaticClass(), ActorsToIgnore, this);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius, 16, FColor::Purple, false, 5);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius + OuterRadius, 16, FColor::Blue, false, 5);
+	
+	if (ExplosionParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation(), FRotator(0, FMath::RandRange(0, 360), 0), FVector(3));
+	}
+	if (ExplosionSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
+	}
+
+	// DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius, 16, FColor::Purple, false, 5);
+	// DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius + OuterRadius, 16, FColor::Blue, false, 5);
 	
 	DestroyProjectile();
 }

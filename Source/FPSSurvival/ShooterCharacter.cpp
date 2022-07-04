@@ -14,6 +14,8 @@
 #include "AbilityPortal.h"
 #include "Health.h"
 #include "Projectile.h"
+#include "Kismet/GameplayStatics.h"
+#include "ShooterPlayerController.h"
 
 
 
@@ -80,6 +82,7 @@ void AShooterCharacter::BeginPlay()
 
 	RifleGun = Cast<ARifle>(PrimaryGun);
 	LauncherGun = Cast<ALauncher>(SecondaryGun);
+	ShooterController = Cast<AShooterPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	AbilityTwoTickDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::AbilityTwoTick);
 	AbilityUltDurationDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::EndAbilityUlt);
@@ -200,6 +203,7 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("CancelAbility", IE_Pressed, this, &AShooterCharacter::OnAbilityOneExit);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AShooterCharacter::OnInteract);
+	PlayerInputComponent->BindAction("TogglePause", IE_Pressed, this, &AShooterCharacter::OnTogglePause).bExecuteWhenPaused = true;
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterCharacter::MoveForward);
@@ -450,10 +454,13 @@ void AShooterCharacter::AbilityTwoTick()
 {
 	CurrentTick++;
 
-	HealthComp->SetHealth(HealthComp->GetHealth() + HealthPerTick);
-	if (HealthComp->GetHealth() >= HealthComp->GetMaxHealth())
+	if (bIsAlive)
 	{
-		HealthComp->SetHealth(HealthComp->GetMaxHealth());
+		HealthComp->SetHealth(HealthComp->GetHealth() + HealthPerTick);
+		if (HealthComp->GetHealth() >= HealthComp->GetMaxHealth())
+		{
+			HealthComp->SetHealth(HealthComp->GetMaxHealth());
+		}
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
@@ -500,7 +507,7 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 	AProjectile* Projectile = Cast<AProjectile>(DamageCauser);
 	if (Projectile)
 	{
-		DamageToApply = DamageToApply / 2;
+		DamageToApply = DamageToApply / 4;
 	}
 
 	DamageToApply = FMath::Min(HealthComp->GetHealth(), DamageToApply);
@@ -519,8 +526,18 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 
 void AShooterCharacter::HandleDeath()
 {
-	DisableInput(GetWorld()->GetFirstPlayerController());
-	UE_LOG(LogTemp, Warning, TEXT("Player is dead"));
+	if (bIsAlive == true)
+	{
+		bIsAlive = false;
+	
+		DisableInput(GetWorld()->GetFirstPlayerController());
+		OnShootReleased();
+		if (DeathSound)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), DeathSound);
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Player is dead"));
+	}
 }
 
 void AShooterCharacter::OnMaxAmmo()
@@ -549,4 +566,17 @@ bool AShooterCharacter::OnHealthUp(float HealthToAdd)
 void AShooterCharacter::OnInteract()
 {
 	InteractTrace();
+}
+
+void AShooterCharacter::OnTogglePause()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+		ShooterController->HidePauseMenu();
+		return;
+	}
+	
+	ShooterController->ShowPauseMenu();
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }

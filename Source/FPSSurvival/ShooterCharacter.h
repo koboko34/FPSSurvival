@@ -76,7 +76,9 @@ private:
 	void HandleDeath();
 
 	void OnInteract();
+	void OnTogglePause();
 
+	class AShooterPlayerController* ShooterController;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gun", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ABaseGun> PrimaryGunClass;
@@ -132,6 +134,9 @@ private:
 	FTimerHandle AbilityUltDurationHandle;
 	FTimerDelegate AbilityUltDurationDelegate;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	USoundBase* DeathSound;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	
@@ -171,5 +176,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bIsPlayerVisible = true;
+	bool bIsAlive = true;
 };
 

@@ -49,6 +49,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class ALauncher> LauncherClass;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ExplosionParticle;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	USoundBase* ExplosionSound;
+
 	UFUNCTION()
 	void DestroyProjectile();
 

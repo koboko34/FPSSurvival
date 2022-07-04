@@ -32,5 +32,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	int Range = 20000;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	USoundBase* LauncherShotSound;
+
 
 };

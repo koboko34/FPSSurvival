@@ -80,5 +80,12 @@ private:
 
 	FTimerHandle NextRoundHandle;
 	FTimerDelegate NextRoundDelegate;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	USoundBase* RoundStartSound;
+
+	void ShowStats();
+	FTimerHandle StatsHandle;
+	FTimerDelegate StatsDelegate;
 	
 };

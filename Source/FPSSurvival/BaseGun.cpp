@@ -109,13 +109,24 @@ bool ABaseGun::CanShoot()
 	if (Ammo <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No ammo!"));
+		Rifle = Cast<ARifle>(this);
+		if (Rifle != nullptr)
+		{
+			Rifle->HideMuzzleFlash();
+		}
 		return false;
 	}
 	else if (!bIsReloading)
 	{
 		return true;
 	}
+
+	if (Rifle != nullptr)
+	{
+		Rifle->HideMuzzleFlash();
+	}
 	return false;
+
 }
 
 
@@ -167,6 +178,12 @@ void ABaseGun::StartShoot()
 void ABaseGun::StopShoot()
 {
 	GetWorldTimerManager().ClearTimer(ShootHandle);
+	Rifle = Cast<ARifle>(this);
+	if (Rifle == nullptr)
+	{
+		return;
+	}
+	Rifle->HideMuzzleFlash();
 }
 
 bool ABaseGun::CanReload()
@@ -226,6 +243,10 @@ void ABaseGun::Reload()
 	
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
 	bIsReloading = false;
+	if (ReloadSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), ReloadSound);
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Reloaded!"));
 }
 

@@ -4,6 +4,7 @@
 #include "HealthUp.h"
 #include "Components/CapsuleComponent.h"
 #include "ShooterCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 void AHealthUp::BeginPlay()
 {
@@ -21,6 +22,10 @@ void AHealthUp::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Othe
 
         if (PlayerCharacter->OnHealthUp(HealthToRestore))
         {
+            if (SoundEffect)
+            {
+                UGameplayStatics::PlaySound2D(GetWorld(), SoundEffect);
+            }
             Destroy();
         }
     }

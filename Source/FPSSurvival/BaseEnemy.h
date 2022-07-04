@@ -32,6 +32,9 @@ protected:
 
 	void HandleDeath();
 
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* DeathSound;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

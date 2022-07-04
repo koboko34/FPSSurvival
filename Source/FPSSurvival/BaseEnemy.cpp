@@ -46,17 +46,19 @@ float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const &Dama
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	DamageToApply = FMath::Min(HealthComp->GetHealth(), DamageToApply);
 	DamageToApply = FMath::RoundHalfFromZero(DamageToApply);
-	HealthComp->SetHealth(HealthComp->GetHealth() - DamageToApply);
-
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
-
-	if (HealthComp->GetHealth() <= 0)
+	
+	if (bIsAlive)
 	{
-		HandleDeath();
+		HealthComp->SetHealth(HealthComp->GetHealth() - DamageToApply);
+		UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
+
+		if (HealthComp->GetHealth() <= 0)
+		{
+			HandleDeath();
+		}
+
+		SurvivalGameMode->AddPoints(10);
 	}
-
-	SurvivalGameMode->AddPoints(10);
-
 	return DamageToApply;
 }
 
@@ -70,6 +72,12 @@ void ABaseEnemy::HandleDeath()
 	SurvivalGameMode->AddPoints(100);
 	SurvivalGameMode->AddDeadEnemy(this);
 	SurvivalGameMode->RemoveFromSpiderCount();
+
+	if (DeathSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
+
+	}
 
 	// spawning pickup
 	int i = FMath::RandRange(0, 99);

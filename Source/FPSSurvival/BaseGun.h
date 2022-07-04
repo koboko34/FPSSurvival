@@ -45,6 +45,8 @@ protected:
 	float ReloadTime = 2;
 	UPROPERTY(EditAnywhere, Category = "Gun")
 	float Damage = 10;
+	UPROPERTY(EditDefaultsOnly, Category = "Gun")
+	class USoundBase* ReloadSound;
 
 	bool CanShoot();
 	bool CanReload();
@@ -68,13 +70,15 @@ public:
 	int GetAmmo() const { return Ammo; }
 	UFUNCTION(BlueprintPure)
 	int GetReserveAmmo() const { return ReserveAmmo; }
+	UFUNCTION(BlueprintPure)
+	bool IsReloading() const { return bIsReloading; }
 
 	UFUNCTION(BlueprintPure)
 	float ReloadProgress() const;
 
 	USkeletalMeshComponent* GetMesh() const;
 	USceneComponent* GetMuzzle() const;
-	// int GetAmmo() const;
+
 
 private:
 

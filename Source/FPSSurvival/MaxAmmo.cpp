@@ -4,6 +4,7 @@
 #include "MaxAmmo.h"
 #include "Components/CapsuleComponent.h"
 #include "ShooterCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 void AMaxAmmo::BeginPlay()
 {
@@ -19,6 +20,11 @@ void AMaxAmmo::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
     {
         // logic here
         PlayerCharacter->OnMaxAmmo();
+
+        if (SoundEffect)
+        {
+            UGameplayStatics::PlaySound2D(GetWorld(), SoundEffect);
+        }
 
         Destroy();
     }

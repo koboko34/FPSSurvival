@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ALauncher::ALauncher()
@@ -39,7 +40,7 @@ void ALauncher::PullTrigger(AShooterCharacter* Player)
 	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 	if (Hit.IsValidBlockingHit())
 	{
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 12, 8, FColor::Red, false, 5);
+		// DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 12, 8, FColor::Red, false, 5);
         Target = Hit.ImpactPoint;
 		// UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), *Hit.GetComponent()->GetName());
 	}
@@ -57,6 +58,10 @@ void ALauncher::PullTrigger(AShooterCharacter* Player)
 
     Projectile->SetOwner(this);
 	
-    // add sounds
+	if (LauncherShotSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), LauncherShotSound);
+	}
+    
 	// add SFX
 }

@@ -27,5 +27,14 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* HUD;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> PauseMenuClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* PauseMenu;
+
+	void ShowPauseMenu();
+	void HidePauseMenu();
+
 };

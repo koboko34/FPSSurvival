@@ -12,4 +12,19 @@ void AShooterPlayerController::BeginPlay()
         HUD = CreateWidget(this, HUDClass);
         HUD->AddToViewport();
     }
+
+    if (PauseMenuClass)
+    {
+        PauseMenu = CreateWidget(this, PauseMenuClass);
+    }
+}
+
+void AShooterPlayerController::ShowPauseMenu()
+{
+    PauseMenu->AddToViewport();
+}
+
+void AShooterPlayerController::HidePauseMenu()
+{
+    PauseMenu->RemoveFromParent();
 }

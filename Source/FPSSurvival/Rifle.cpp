@@ -7,10 +7,14 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "BaseEnemy.h"
+#include "Particles/ParticleSystemComponent.h"
 
 ARifle::ARifle()
 {
-    
+    MuzzleFlashParticleComp = CreateDefaultSubobject<UParticleSystemComponent>("Muzzle Flash Particle");
+	MuzzleFlashParticleComp->SetupAttachment(GetMuzzle());
+	MuzzleFlashParticleComp->SetVisibility(false);
 }
 
 void ARifle::BeginPlay()
@@ -63,13 +67,38 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, HitArraySorted[index].ImpactPoint, ShotDirection.Rotation());
 			}
+			
+			ABaseEnemy* Enemy = Cast<ABaseEnemy>(HitArraySorted[index].GetActor());
+
+			if (FleshImpactSound && Enemy != nullptr)
+			{
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FleshImpactSound, HitArraySorted[index].ImpactPoint);
+			}
+			else if (ConcreteImpactSound)
+			{
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ConcreteImpactSound, HitArraySorted[index].ImpactPoint);
+			}
 			index++;
 			CurrentPenCount++;
 		}
+		ShowMuzzleFlash();
 	}
 
-	// add sounds
+	if (ShotSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(ShotSound, GetMesh(), TEXT("MuzzleFlashSocket"));
+	}
+	
+}
 
+void ARifle::ShowMuzzleFlash()
+{
+	MuzzleFlashParticleComp->SetVisibility(true);
+}
+
+void ARifle::HideMuzzleFlash()
+{
+	MuzzleFlashParticleComp->SetVisibility(false);
 }
 
 

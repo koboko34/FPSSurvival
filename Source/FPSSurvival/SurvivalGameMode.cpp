@@ -5,6 +5,7 @@
 #include "BaseEnemy.h"
 #include "Spider.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 void ASurvivalGameMode::BeginPlay()
 {
@@ -21,6 +22,9 @@ void ASurvivalGameMode::BeginPlay()
 
     NextRoundDelegate = FTimerDelegate::CreateUObject(this, &ASurvivalGameMode::NextRound);
     PrepareNextRound();
+
+    // StatsDelegate = FTimerDelegate::CreateUObject(this, &ASurvivalGameMode::ShowStats);
+    // GetWorldTimerManager().SetTimer(StatsHandle, StatsDelegate, 1, true);
 }
 
 int ASurvivalGameMode::GetPoints() const
@@ -49,7 +53,7 @@ void ASurvivalGameMode::AddDeadEnemy(ABaseEnemy* DeadEnemy)
         ClearDeadEnemies();
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("%i"), DeadEnemies.Num());
+    // UE_LOG(LogTemp, Warning, TEXT("%i"), DeadEnemies.Num());
 }
 
 void ASurvivalGameMode::ClearDeadEnemies()
@@ -68,6 +72,11 @@ void ASurvivalGameMode::StartRound(int RoundToStart)
     SpidersKilled = 0;
     SpidersSpawned = 0;
     SpidersToSpawn = RoundToStart * 10;
+
+    if (RoundStartSound)
+    {
+        UGameplayStatics::PlaySound2D(GetWorld(), RoundStartSound);
+    }
 
     UE_LOG(LogTemp, Warning, TEXT("Starting Round %i"), Round);
 }
@@ -137,4 +146,11 @@ bool ASurvivalGameMode::SpawnSpider(FVector SpawnLocation)
     AddToSpiderCount(true);
 
     return true;
+}
+
+void ASurvivalGameMode::ShowStats()
+{
+    UE_LOG(LogTemp, Warning, TEXT("SpidersToSpawn: %i"), SpidersToSpawn);
+    UE_LOG(LogTemp, Warning, TEXT("SpidersSpawned: %i"), SpidersSpawned);
+    UE_LOG(LogTemp, Warning, TEXT("SpidersKilled: %i"), SpidersKilled);
 }
