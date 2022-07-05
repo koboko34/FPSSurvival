@@ -16,6 +16,9 @@ class FPSSURVIVAL_API ALauncher : public ABaseGun
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditDefaultsOnly)
+	class UParticleSystemComponent* MuzzleFlashParticle;
+
 public:
 	ALauncher();
 
@@ -34,6 +37,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	USoundBase* LauncherShotSound;
+
+	FTimerDelegate MuzzleDelegate;
+
+	void ShowMuzzleFlash();
+	void HideMuzzleFlash();
 
 
 };

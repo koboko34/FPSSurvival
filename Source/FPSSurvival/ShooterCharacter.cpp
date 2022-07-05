@@ -436,7 +436,7 @@ void AShooterCharacter::OnAbilityTwo()
 	if (bAbilityTwoReady)
 	{
 		bAbilityTwoReady = false;
-
+		bAbilityTwoActive = true;
 		AbilityTwoCurrentCooldown = AbilityTwoCooldown;
 
 		CurrentTick = 0;
@@ -468,6 +468,7 @@ void AShooterCharacter::AbilityTwoTick()
 	if (CurrentTick >= TickLimit)
 	{
 		GetWorldTimerManager().ClearTimer(AbilityTwoTickHandle);
+		bAbilityTwoActive = false;
 		UE_LOG(LogTemp, Warning, TEXT("Ability two ended"));
 	}
 }
@@ -485,6 +486,8 @@ void AShooterCharacter::OnAbilityUlt()
 	
 		AbilityUltCurrentCooldown = AbilityUltCooldown;
 
+		ShooterController->ShowAbilityUlt();
+
 		UE_LOG(LogTemp, Warning, TEXT("Ability Ult"));
 	}
 	else
@@ -497,6 +500,7 @@ void AShooterCharacter::OnAbilityUlt()
 void AShooterCharacter::EndAbilityUlt()
 {
 	bIsPlayerVisible = true;
+	ShooterController->HideAbilityUlt();
 	// return move speed to normal
 }
 
@@ -574,9 +578,13 @@ void AShooterCharacter::OnTogglePause()
 	{
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
 		ShooterController->HidePauseMenu();
+		ShooterController->bShowMouseCursor = false;
+		ShooterController->SetInputMode(FInputModeGameOnly());
 		return;
 	}
 	
 	ShooterController->ShowPauseMenu();
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	ShooterController->bShowMouseCursor = true;
+	ShooterController->SetInputMode(FInputModeGameAndUI());
 }

@@ -7,6 +7,11 @@
 
 void AShooterPlayerController::BeginPlay()
 {
+    if (AbilityUltClass)
+    {
+        AbilityUlt = CreateWidget(this, AbilityUltClass);
+    }
+    
     if (HUDClass)
     {
         HUD = CreateWidget(this, HUDClass);
@@ -17,6 +22,7 @@ void AShooterPlayerController::BeginPlay()
     {
         PauseMenu = CreateWidget(this, PauseMenuClass);
     }
+
 }
 
 void AShooterPlayerController::ShowPauseMenu()
@@ -27,4 +33,14 @@ void AShooterPlayerController::ShowPauseMenu()
 void AShooterPlayerController::HidePauseMenu()
 {
     PauseMenu->RemoveFromParent();
+}
+
+void AShooterPlayerController::ShowAbilityUlt()
+{
+    AbilityUlt->AddToViewport();
+}
+
+void AShooterPlayerController::HideAbilityUlt()
+{
+    AbilityUlt->RemoveFromParent();
 }

@@ -9,16 +9,23 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "TimerManager.h"
+
 
 
 ALauncher::ALauncher()
 {
-    
+    MuzzleFlashParticle = CreateDefaultSubobject<UParticleSystemComponent>("Muzzle Flash Particle");
+	MuzzleFlashParticle->SetupAttachment(GetMesh(), TEXT("MuzzleFlashSocket"));
+	MuzzleFlashParticle->SetVisibility(false);
 }
 
 void ALauncher::BeginPlay()
 {
     Super::BeginPlay();
+
+	MuzzleDelegate = FTimerDelegate::CreateUObject(this, &ALauncher::HideMuzzleFlash);
 }
 
 void ALauncher::PullTrigger(AShooterCharacter* Player)
@@ -63,5 +70,17 @@ void ALauncher::PullTrigger(AShooterCharacter* Player)
 		UGameplayStatics::PlaySound2D(GetWorld(), LauncherShotSound);
 	}
     
-	// add SFX
+	ShowMuzzleFlash();
+	FTimerHandle MuzzleHandle;
+	GetWorldTimerManager().SetTimer(MuzzleHandle, MuzzleDelegate, 0.1, false);
+}
+
+void ALauncher::ShowMuzzleFlash()
+{
+	MuzzleFlashParticle->SetVisibility(true);
+}
+
+void ALauncher::HideMuzzleFlash()
+{
+	MuzzleFlashParticle->SetVisibility(false);
 }

@@ -40,3 +40,7 @@ void UHealth::SetHealth(float NewHealth)
 	Health = NewHealth;
 }
 
+void UHealth::SetMaxHealth(float NewMaxHealth)
+{
+	MaxHealth = NewMaxHealth;
+}

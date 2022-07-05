@@ -78,13 +78,7 @@ void ABaseGun::Shoot()
 		{
 			StartReload();
 		}
-		// UE_LOG(LogTemp, Warning, TEXT("%s Ammo: %i"), *GetActorNameOrLabel(), Ammo);
-
-		if (MuzzleFlash)
-		{
-			UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
-		}
-		
+		// UE_LOG(LogTemp, Warning, TEXT("%s Ammo: %i"), *GetActorNameOrLabel(), Ammo);	
 		
 	}
 }
@@ -259,4 +253,14 @@ void ABaseGun::OnMaxAmmo()
 float ABaseGun::ReloadProgress() const
 {
 	return GetWorldTimerManager().GetTimerRemaining(ReloadHandle) / ReloadTime;
+}
+
+void ABaseGun::ShowHitmarker()
+{
+	bMakeHitmarkerVisible = true;
+}
+
+void ABaseGun::HideHitmarker()
+{
+	bMakeHitmarkerVisible = false;
 }

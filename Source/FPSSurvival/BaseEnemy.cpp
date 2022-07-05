@@ -30,6 +30,9 @@ void ABaseEnemy::BeginPlay()
 
 	SurvivalGameMode = Cast<ASurvivalGameMode>(UGameplayStatics::GetGameMode(this));
 
+	HealthComp->SetMaxHealth(HealthComp->GetMaxHealth() + (SurvivalGameMode->GetRound() * BonusHealthPerRound) - BonusHealthPerRound);
+	HealthComp->SetHealth(HealthComp->GetMaxHealth());
+
 	ClearStunDelegate.BindUObject(this, &ABaseEnemy::ClearStun);
 	StartExitStunDelegate.BindUObject(this, &ABaseEnemy::StartExitStun);	
 }

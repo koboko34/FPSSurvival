@@ -123,6 +123,7 @@ private:
 	int TickLimit = 10;
 	int CurrentTick = 0;
 	float HealthPerTick = 5;
+	bool bAbilityTwoActive = false;
 
 	bool bAbilityUltReady = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
@@ -152,6 +153,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetAbilityUltCooldown() const { return AbilityUltCurrentCooldown; }
 	UFUNCTION(BlueprintPure)
+	bool GetAbilityTwoActive() const { return bAbilityTwoActive; }
+	UFUNCTION(BlueprintPure)
 	UHealth* GetHealthComponent() const { return HealthComp; }
 	UFUNCTION(BlueprintPure)
 	ALauncher* GetLauncher() const { return LauncherGun; }
@@ -159,6 +162,7 @@ public:
 	ABaseGun* GetActiveGun() const { return ActiveGun; }
 	UFUNCTION(BlueprintPure)
 	ABaseGun* GetInactiveGun() const { return InactiveGun; }
+
 
 
 	UFUNCTION(BlueprintImplementableEvent)

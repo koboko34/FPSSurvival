@@ -55,6 +55,8 @@ protected:
 
 	class AShooterCharacter* PlayerCharacter;
 
+	bool bMakeHitmarkerVisible = false;
+
 public:	
 	// virtual void Tick(float DeltaTime) override;
 	void StartShoot();
@@ -72,6 +74,11 @@ public:
 	int GetReserveAmmo() const { return ReserveAmmo; }
 	UFUNCTION(BlueprintPure)
 	bool IsReloading() const { return bIsReloading; }
+	UFUNCTION(BlueprintPure)
+	bool GetMakeHitmarkerVisible() const { return bMakeHitmarkerVisible; }
+
+	void ShowHitmarker();
+	void HideHitmarker();
 
 	UFUNCTION(BlueprintPure)
 	float ReloadProgress() const;
@@ -93,8 +100,5 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsReloading = false;
-
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* MuzzleFlash;
 
 };

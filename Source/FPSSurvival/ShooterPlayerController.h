@@ -34,7 +34,16 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* PauseMenu;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> AbilityUltClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* AbilityUlt;
+
 	void ShowPauseMenu();
 	void HidePauseMenu();
+
+	void ShowAbilityUlt();
+	void HideAbilityUlt();
 
 };

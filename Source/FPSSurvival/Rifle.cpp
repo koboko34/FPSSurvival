@@ -43,6 +43,8 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
     FVector Start = Player->GetFirstPersonCameraComponent()->GetComponentLocation();
 	FVector End = Start + (Player->GetFirstPersonCameraComponent()->GetForwardVector() * Range);
 
+	bool bHitEnemy = false;
+
 	TArray<FHitResult> HitArray;
 	TArray<FHitResult> HitArraySorted;
 	int CurrentPenCount = 0;
@@ -69,6 +71,13 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
 			}
 			
 			ABaseEnemy* Enemy = Cast<ABaseEnemy>(HitArraySorted[index].GetActor());
+			if (bHitEnemy == false)
+			{
+				if (Enemy != nullptr)
+				{
+					bHitEnemy = true;
+				}
+			}
 
 			if (FleshImpactSound && Enemy != nullptr)
 			{
@@ -81,6 +90,14 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
 			index++;
 			CurrentPenCount++;
 		}
+
+		if (bHitEnemy)
+		{
+			ShowHitmarker();
+			FTimerHandle HitmarkerHandle;
+			GetWorldTimerManager().SetTimer(HitmarkerHandle, this, &ABaseGun::HideHitmarker, 0.15, false);
+		}
+
 		ShowMuzzleFlash();
 	}
 

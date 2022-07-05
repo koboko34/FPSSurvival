@@ -70,4 +70,6 @@ private:
 	TSubclassOf<AHealthUp> HealthUpClass;
 
 	class ASurvivalGameMode* SurvivalGameMode;
+
+	float BonusHealthPerRound = 25;
 };

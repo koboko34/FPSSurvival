@@ -29,6 +29,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
 	void SetHealth(float NewHealth);
+	void SetMaxHealth (float NewMaxHealth);
 
 private:
 
