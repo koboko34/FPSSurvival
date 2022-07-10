@@ -17,7 +17,8 @@
 ABaseEnemy::ABaseEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	HealthComp = CreateDefaultSubobject<UHealth>(TEXT("Health Component"));
 
@@ -37,12 +38,12 @@ void ABaseEnemy::BeginPlay()
 	StartExitStunDelegate.BindUObject(this, &ABaseEnemy::StartExitStun);	
 }
 
-// Called every frame
-void ABaseEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+// // Called every frame
+// void ABaseEnemy::Tick(float DeltaTime)
+// {
+// 	Super::Tick(DeltaTime);
 
-}
+// }
 
 float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
@@ -53,7 +54,7 @@ float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const &Dama
 	if (bIsAlive)
 	{
 		HealthComp->SetHealth(HealthComp->GetHealth() - DamageToApply);
-		UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
+		// UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
 
 		if (HealthComp->GetHealth() <= 0)
 		{

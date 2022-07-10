@@ -59,8 +59,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool CustomStartRound = false;
 
+	UFUNCTION()
+	void EndGame(bool bIsPlayerWinner);
+
 	UFUNCTION(BlueprintPure)
 	int GetRound() const { return Round; }
+	UFUNCTION(BlueprintPure)
+	bool GameHasEnded() const { return bGameHasEnded; }
 
 protected:
 
@@ -87,5 +92,9 @@ private:
 	void ShowStats();
 	FTimerHandle StatsHandle;
 	FTimerDelegate StatsDelegate;
+
+	bool bGameHasEnded = false;
+
+	void RestartLevel();
 	
 };

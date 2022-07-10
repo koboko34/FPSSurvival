@@ -86,6 +86,14 @@ void ASurvivalGameMode::PrepareNextRound()
     GetWorldTimerManager().SetTimer(NextRoundHandle, NextRoundDelegate, 5, false);
 }
 
+void ASurvivalGameMode::EndGame(bool bIsPlayerWinner)
+{
+    bGameHasEnded = true;
+
+    FTimerHandle Handle;
+    GetWorldTimerManager().SetTimer(Handle, this, &ASurvivalGameMode::RestartLevel, 5, false);
+}
+
 void ASurvivalGameMode::NextRound()
 {
     Round++;
@@ -153,4 +161,9 @@ void ASurvivalGameMode::ShowStats()
     UE_LOG(LogTemp, Warning, TEXT("SpidersToSpawn: %i"), SpidersToSpawn);
     UE_LOG(LogTemp, Warning, TEXT("SpidersSpawned: %i"), SpidersSpawned);
     UE_LOG(LogTemp, Warning, TEXT("SpidersKilled: %i"), SpidersKilled);
+}
+
+void ASurvivalGameMode::RestartLevel()
+{
+    UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }

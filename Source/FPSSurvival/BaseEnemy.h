@@ -36,8 +36,8 @@ protected:
 	class USoundBase* DeathSound;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// // Called every frame
+	// virtual void Tick(float DeltaTime) override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const &DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 

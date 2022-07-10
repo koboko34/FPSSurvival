@@ -16,6 +16,8 @@ class AAbilityPortal;
 class UHealth;
 class ARifle;
 class ALauncher;
+class ASurvivalGameMode;
+class APortalPointer;
 
 UCLASS(config=Game)
 class AShooterCharacter : public ACharacter
@@ -51,10 +53,13 @@ private:
 	void OnReload();
 	void MoveForward(float Val);
 	void MoveRight(float Val);
+	void LookRightRate(float Val);
+	void LookUpRate(float Val);
 	void OnSprint();
 
+
 	void OnAbilityOne();
-	void OnAbilityOneExit();
+	// void OnAbilityOneExit();
 	void OnAbilityTwo();
 	void OnAbilityUlt();
 
@@ -94,6 +99,9 @@ private:
 	float SprintSpeed = 1200;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float StrafeSpeed = 600;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float RotationRate = 600;
+	float ControllerDeadzone = 0.05;
 
 	bool bIsShootPressed = false;
 	bool bIsSprinting = false;
@@ -102,14 +110,22 @@ private:
 	float AbilityRange = 2000;
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AAbilityPortal> AbilityPortalClass;
+	UPROPERTY()
 	AAbilityPortal* FirstPortal;
+	UPROPERTY()
 	AAbilityPortal* SecondPortal;
+	UPROPERTY()
+	TArray<AAbilityPortal*> PortalArray;
 	
 	bool bAbilityOneReady = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	float AbilityOneCooldown = 8;
 	float AbilityOneCurrentCooldown = 0;
 	FTimerHandle AbilityOneCooldownHandle;
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<APortalPointer> PortalPtrClass;
+	UPROPERTY()
+	APortalPointer* PortalPtr;
 	
 	bool bAbilityTwoReady = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
@@ -138,6 +154,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	USoundBase* DeathSound;
 
+	ASurvivalGameMode* SurvivalGameMode;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	
@@ -162,6 +180,8 @@ public:
 	ABaseGun* GetActiveGun() const { return ActiveGun; }
 	UFUNCTION(BlueprintPure)
 	ABaseGun* GetInactiveGun() const { return InactiveGun; }
+	UFUNCTION(BlueprintPure)
+	bool IsAlive() const { return bIsAlive; }
 
 
 
@@ -169,7 +189,8 @@ public:
 	void InteractTrace();
 	
 	void StopSprint();
-
+	
+	UFUNCTION(BlueprintCallable)
 	void OnMaxAmmo();
 	bool OnHealthUp(float HealthToAdd);
 

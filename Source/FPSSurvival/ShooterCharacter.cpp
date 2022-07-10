@@ -16,8 +16,8 @@
 #include "Projectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "ShooterPlayerController.h"
-
-
+#include "SurvivalGameMode.h"
+#include "PortalPointer.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -83,6 +83,7 @@ void AShooterCharacter::BeginPlay()
 	RifleGun = Cast<ARifle>(PrimaryGun);
 	LauncherGun = Cast<ALauncher>(SecondaryGun);
 	ShooterController = Cast<AShooterPlayerController>(GetWorld()->GetFirstPlayerController());
+	SurvivalGameMode = Cast<ASurvivalGameMode>(UGameplayStatics::GetGameMode(this));
 
 	AbilityTwoTickDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::AbilityTwoTick);
 	AbilityUltDurationDelegate = FTimerDelegate::CreateUObject(this, &AShooterCharacter::EndAbilityUlt);
@@ -160,7 +161,7 @@ void AShooterCharacter::SelectActiveGun(ABaseGun* newActiveGun)
 		ActiveGun->StartReload();
 	}
 	
-	OnAbilityOneExit();
+	// OnAbilityOneExit();
 }
 
 void AShooterCharacter::ToggleActiveGun()
@@ -190,7 +191,7 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AShooterCharacter::OnShootPressed);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AShooterCharacter::OnShootReleased);
 
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShooterCharacter::OnReload);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShooterCharacter::OnReload).bConsumeInput = false;
 
 	// Bind weapon swapping
 	PlayerInputComponent->BindAction("ToggleWeapon", IE_Pressed, this, &AShooterCharacter::ToggleActiveGun);
@@ -200,9 +201,9 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Ability1", IE_Pressed, this, &AShooterCharacter::OnAbilityOne);
 	PlayerInputComponent->BindAction("Ability2", IE_Pressed, this, &AShooterCharacter::OnAbilityTwo);
 	PlayerInputComponent->BindAction("AbilityUlt", IE_Pressed, this, &AShooterCharacter::OnAbilityUlt);
-	PlayerInputComponent->BindAction("CancelAbility", IE_Pressed, this, &AShooterCharacter::OnAbilityOneExit);
+	// PlayerInputComponent->BindAction("CancelAbility", IE_Pressed, this, &AShooterCharacter::OnAbilityOneExit);
 
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AShooterCharacter::OnInteract);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AShooterCharacter::OnInteract).bConsumeInput = false;
 	PlayerInputComponent->BindAction("TogglePause", IE_Pressed, this, &AShooterCharacter::OnTogglePause).bExecuteWhenPaused = true;
 
 	// Bind movement events
@@ -212,6 +213,9 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAxis("LookRight", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAxis("LookRightRate", this, &AShooterCharacter::LookRightRate);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpRate);
 }
 
 void AShooterCharacter::OnReload()
@@ -267,10 +271,16 @@ void AShooterCharacter::TogglePlayMode()
 
 void AShooterCharacter::MoveForward(float Value)
 {
+	if (Value < ControllerDeadzone && Value > -ControllerDeadzone)
+	{
+		Value = 0;
+	}
+
 	if (Value != 0.0f)
 	{
 		AddMovementInput(GetActorForwardVector(), Value);
 	}
+
 	if (Value <= 0 && bIsSprinting)
 	{
 		StopSprint();
@@ -279,10 +289,35 @@ void AShooterCharacter::MoveForward(float Value)
 
 void AShooterCharacter::MoveRight(float Value)
 {
+	if (Value < ControllerDeadzone && Value > -ControllerDeadzone)
+	{
+		Value = 0;
+	}
+	
 	if (Value != 0.0f)
 	{
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+void AShooterCharacter::LookRightRate(float Value)
+{
+	if (Value < ControllerDeadzone && Value > -ControllerDeadzone)
+	{
+		Value = 0;
+	}
+	
+	AddControllerYawInput(Value * RotationRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AShooterCharacter::LookUpRate(float Value)
+{
+	if (Value < ControllerDeadzone && Value > -ControllerDeadzone)
+	{
+		Value = 0;
+	}
+	
+	AddControllerPitchInput(Value * RotationRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AShooterCharacter::OnSprint()
@@ -290,7 +325,7 @@ void AShooterCharacter::OnSprint()
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 	ActiveGun->CancelReload();
 	bIsSprinting = true;
-	UE_LOG(LogTemp, Warning, TEXT("Start sprint"));
+	// UE_LOG(LogTemp, Warning, TEXT("Start sprint"));
 }
 
 void AShooterCharacter::StopSprint()
@@ -301,7 +336,12 @@ void AShooterCharacter::StopSprint()
 	}
 	GetCharacterMovement()->MaxWalkSpeed = StrafeSpeed;
 	bIsSprinting = false;
-	UE_LOG(LogTemp, Warning, TEXT("Stop sprint"));
+
+	if (ActiveGun->GetAmmo() <= 0)
+	{
+		ActiveGun->StartReload();
+	}
+	// UE_LOG(LogTemp, Warning, TEXT("Stop sprint"));
 }
 
 void AShooterCharacter::OnAbilityOne()
@@ -326,22 +366,22 @@ void AShooterCharacter::OnAbilityOne()
 	
 }
 
-void AShooterCharacter::OnAbilityOneExit()
-{
-	if (ActivePlayMode == EPlayMode::MODE_Ability)
-	{
-		if (FirstPortal)
-		{
-			FirstPortal->Destroy();
-		}
-		if (SecondPortal)
-		{
-			SecondPortal->Destroy();
-		}
-		ClearPortalsRef();
-		TogglePlayMode();
-	}
-}
+// void AShooterCharacter::OnAbilityOneExit()
+// {
+// 	if (ActivePlayMode == EPlayMode::MODE_Ability)
+// 	{
+// 		if (FirstPortal)
+// 		{
+// 			FirstPortal->Destroy();
+// 		}
+// 		if (SecondPortal)
+// 		{
+// 			SecondPortal->Destroy();
+// 		}
+// 		ClearPortalsRef();
+// 		TogglePlayMode();
+// 	}
+// }
 
 AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 {
@@ -363,13 +403,29 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 
 	if (OutHit.IsValidBlockingHit())
 	{
-		DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 24, 8, FColor::Purple, false, 5);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (PortalPtr == nullptr)
+		{
+			PortalPtr = GetWorld()->SpawnActor<APortalPointer>
+			(
+				PortalPtrClass,
+				OutHit.ImpactPoint,
+				FRotator::ZeroRotator,
+				SpawnParams
+			);
+		}
+	
+		// DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 24, 8, FColor::Purple, false, 5);
 		
+		FActorSpawnParameters SpawnPortalParams;
+		SpawnPortalParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnedPortal = GetWorld()->SpawnActor<AAbilityPortal>
 		(
 			AbilityPortalClass,
 			OutHit.ImpactPoint,
-			FRotator(0, 0, 0)
+			FRotator::ZeroRotator,
+			SpawnPortalParams
 		);
 	}
 	else
@@ -384,6 +440,8 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 		bSuccess = false;
 		return nullptr;
 	}
+
+	SpawnedPortal->SetOwner(this);
 	bSuccess = true;
 	return SpawnedPortal;
 }
@@ -399,22 +457,28 @@ void AShooterCharacter::HandlePortalSpawn()
 		return;
 	}
 
-	if (SecondPortal != nullptr)
-	{
-		ClearPortalsRef();
-	}
+	// if (SecondPortal != nullptr)
+	// {
+	// 	ClearPortalsRef();
+	// }
+	
 	if (FirstPortal == nullptr)
 	{
 		// spawning first portal
 		FirstPortal = Portal;
+		PortalArray.Empty();
+		PortalArray.Add(FirstPortal);
 	}
 	else
 	{
 		// spawning second portal
 		SecondPortal = Portal;
+		PortalArray.Add(SecondPortal);
 
 		FirstPortal->SetupPortal(SecondPortal);
 		SecondPortal->SetupPortal(FirstPortal);
+
+		ClearPortalsRef();
 
 		AbilityOneCurrentCooldown = AbilityOneCooldown;
 		bAbilityOneReady = false;
@@ -429,6 +493,12 @@ void AShooterCharacter::ClearPortalsRef()
 {
 	FirstPortal = nullptr;
 	SecondPortal = nullptr;
+	
+	if (PortalPtr != nullptr)
+	{
+		PortalPtr->DestroySelf();
+		PortalPtr = nullptr;
+	}
 }
 
 void AShooterCharacter::OnAbilityTwo()
@@ -541,6 +611,8 @@ void AShooterCharacter::HandleDeath()
 			UGameplayStatics::PlaySound2D(GetWorld(), DeathSound);
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Player is dead"));
+
+		SurvivalGameMode->EndGame(false);
 	}
 }
 
@@ -570,21 +642,26 @@ bool AShooterCharacter::OnHealthUp(float HealthToAdd)
 void AShooterCharacter::OnInteract()
 {
 	InteractTrace();
+	UE_LOG(LogTemp, Warning, TEXT("OnInteract() called"));
 }
 
 void AShooterCharacter::OnTogglePause()
 {
-	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	// if (UGameplayStatics::IsGamePaused(GetWorld()))
+	// {
+	// 	// UGameplayStatics::SetGamePaused(GetWorld(), false);
+	// 	// ShooterController->HidePauseMenu();
+	// 	// ShooterController->bShowMouseCursor = false;
+	// 	// ShooterController->SetInputMode(FInputModeGameOnly());
+	// 	return;
+	// }
+
+	if (UGameplayStatics::IsGamePaused(GetWorld()) == false)
 	{
-		UGameplayStatics::SetGamePaused(GetWorld(), false);
-		ShooterController->HidePauseMenu();
-		ShooterController->bShowMouseCursor = false;
-		ShooterController->SetInputMode(FInputModeGameOnly());
-		return;
+		ShooterController->ShowPauseMenu();
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		ShooterController->bShowMouseCursor = true;
+		ShooterController->SetInputMode(FInputModeGameAndUI());
 	}
-	
-	ShooterController->ShowPauseMenu();
-	UGameplayStatics::SetGamePaused(GetWorld(), true);
-	ShooterController->bShowMouseCursor = true;
-	ShooterController->SetInputMode(FInputModeGameAndUI());
+
 }

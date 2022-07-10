@@ -31,10 +31,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	UStaticMeshComponent* GetMesh();
+	UStaticMeshComponent* GetMesh() const;
 	
 	void SetupPortal(AAbilityPortal* Partner);
 
@@ -47,12 +45,14 @@ public:
 
 private:
 
+	UPROPERTY()
 	AAbilityPortal* PartnerPortal;
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UNiagaraComponent* PortalComp;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AAbilityProjectile> AbilityProjectileClass;
+	UPROPERTY()
 	AAbilityProjectile* SpawnedProjectile;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))

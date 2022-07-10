@@ -4,6 +4,12 @@
 #include "Spider.h"
 #include "Math/UnrealMathUtility.h"
 
+ASpider::ASpider()
+{
+    PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+}
+
 void ASpider::BeginPlay()
 {
     Super::BeginPlay();

@@ -15,6 +15,8 @@ class FPSSURVIVAL_API ASpider : public ABaseEnemy
 
 public:
 
+	ASpider();
+
 protected:
 
 	virtual void BeginPlay() override;

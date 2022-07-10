@@ -43,10 +43,10 @@ void AAbilityProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TimeElapsed = TimeElapsed + DeltaTime;
-
 	if (TargetIsSet)
 	{
+		TimeElapsed = TimeElapsed + DeltaTime;
+		
 		SetActorLocation(FMath::Lerp(StartLocation, TargetLocation, (TimeElapsed / LerpDuration)));
 		if (TimeElapsed >= LerpDuration)
 		{

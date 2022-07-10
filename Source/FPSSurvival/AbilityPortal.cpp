@@ -13,44 +13,27 @@
 AAbilityPortal::AAbilityPortal()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(Root);
-	// PortalComp = CreateDefaultSubobject<UNiagaraComponent>("Portal Particles");
-	// PortalComp->SetupAttachment(Mesh);
-	// PortalParticleSystem = CreateDefaultSubobject<UNiagaraSystem>("Portal Particles");
-	// PortalParticleSystem->SetupAttachment(Mesh);
-	
 }
 
-// Called when the game starts or when spawned
 void AAbilityPortal::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// if (PortalParticleSystem)
-	// {
-	// 	PortalComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PortalParticleSystem, Mesh->GetComponentLocation(), GetActorRotation());
-	// }
-
-	Mesh->SetVisibility(false);	
-}
-
-// Called every frame
-void AAbilityPortal::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	Mesh->SetVisibility(false);
 }
 
 void AAbilityPortal::SetupPortal(AAbilityPortal* Partner)
 {
 	PartnerPortal = Partner;
 
-	UE_LOG(LogTemp, Warning, TEXT("%s's partner: %s"), *GetActorNameOrLabel(), *PartnerPortal->GetActorNameOrLabel());
+	// UE_LOG(LogTemp, Warning, TEXT("%s's partner: %s"), *GetActorNameOrLabel(), *PartnerPortal->GetActorNameOrLabel());
 	
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PartnerPortal->GetActorLocation());
 	FRotator AdjustedLookAtRotation = FRotator(0, LookAtRotation.Yaw, 0);
@@ -68,7 +51,7 @@ void AAbilityPortal::SetupPortal(AAbilityPortal* Partner)
 	
 }
 
-UStaticMeshComponent* AAbilityPortal::GetMesh()
+UStaticMeshComponent* AAbilityPortal::GetMesh() const
 {
 	return Mesh;
 }
@@ -93,6 +76,7 @@ void AAbilityPortal::SpawnProjectile()
 
 void AAbilityPortal::HandleDestruction()
 {
+	UE_LOG(LogTemp, Warning, TEXT("HandleDestruction() called"));
 	HandleNiagaraDestruction();
 	Destroy();
 }
