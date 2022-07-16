@@ -103,7 +103,7 @@ bool ABaseGun::CanShoot()
 {
 	if (Ammo <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No ammo!"));
+		// UE_LOG(LogTemp, Warning, TEXT("No ammo!"));
 		Rifle = Cast<ARifle>(this);
 		if (Rifle != nullptr)
 		{
@@ -185,17 +185,17 @@ bool ABaseGun::CanReload()
 {
 	if (Ammo >= MagSize)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Mag is already full!"));
+		// UE_LOG(LogTemp, Warning, TEXT("Mag is already full!"));
 		return false;
 	}
 	if (ReserveAmmo <= 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No reserve ammo!"));
+		// UE_LOG(LogTemp, Warning, TEXT("No reserve ammo!"));
 		return false;
 	}
 	if (ReloadHandle.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Already reloading!"));
+		// UE_LOG(LogTemp, Warning, TEXT("Already reloading!"));
 		return false;
 	}
 	return true;
@@ -207,7 +207,7 @@ void ABaseGun::StartReload()
 		PlayerCharacter->StopSprint();
 		bIsReloading = true;
 		GetWorldTimerManager().SetTimer(ReloadHandle, ReloadDelegate, ReloadTime, false);
-		UE_LOG(LogTemp, Warning, TEXT("Reloading!"));
+		// UE_LOG(LogTemp, Warning, TEXT("Reloading!"));
 	}
 }
 
@@ -217,7 +217,7 @@ void ABaseGun::CancelReload()
 	{
 		GetWorldTimerManager().ClearTimer(ReloadHandle);
 		bIsReloading = false;
-		UE_LOG(LogTemp, Warning, TEXT("Reload cancelled!"));
+		// UE_LOG(LogTemp, Warning, TEXT("Reload cancelled!"));
 	}
 }
 
@@ -242,7 +242,7 @@ void ABaseGun::Reload()
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), ReloadSound);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Reloaded!"));
+	// UE_LOG(LogTemp, Warning, TEXT("Reloaded!"));
 }
 
 void ABaseGun::OnMaxAmmo()
@@ -254,14 +254,4 @@ void ABaseGun::OnMaxAmmo()
 float ABaseGun::ReloadProgress() const
 {
 	return GetWorldTimerManager().GetTimerRemaining(ReloadHandle) / ReloadTime;
-}
-
-void ABaseGun::ShowHitmarker()
-{
-	bMakeHitmarkerVisible = true;
-}
-
-void ABaseGun::HideHitmarker()
-{
-	bMakeHitmarkerVisible = false;
 }

@@ -22,8 +22,6 @@ protected:
 
 public:	
 
-	// virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	UFUNCTION(BlueprintPure)
 	float GetHealth() const;
 	UFUNCTION(BlueprintPure)

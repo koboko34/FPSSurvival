@@ -5,7 +5,8 @@
 
 UHealth::UHealth()
 {
-
+	PrimaryComponentTick.bCanEverTick =  false;
+	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
 
@@ -14,16 +15,8 @@ void UHealth::BeginPlay()
 	Super::BeginPlay();
 
 	Health = MaxHealth;
-	
 }
 
-
-// void UHealth::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-// {
-// 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-// 	// ...
-// }
 
 float UHealth::GetHealth() const
 {

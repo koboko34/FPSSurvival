@@ -361,7 +361,8 @@ void AShooterCharacter::OnAbilityOne()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityOneCurrentCooldown);
+		// UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityOneCurrentCooldown);
+		ShooterController->ShowInfo(TEXT("On cooldown!"));
 	}
 	
 }
@@ -430,7 +431,8 @@ AAbilityPortal* AShooterCharacter::TracePortal(bool& bSuccess)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Target not in range"));
+		// UE_LOG(LogTemp, Warning, TEXT("Target not in range"));
+		ShooterController->ShowInfo(TEXT("Target not in range! Try again!"));
 		bSuccess = false;
 		return nullptr;
 	}
@@ -453,7 +455,7 @@ void AShooterCharacter::HandlePortalSpawn()
 
 	if (!bSuccess)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Can't spawn portal"));
+		// UE_LOG(LogTemp, Warning, TEXT("Can't spawn portal"));
 		return;
 	}
 
@@ -516,7 +518,8 @@ void AShooterCharacter::OnAbilityTwo()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityTwoCurrentCooldown);
+		// UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityTwoCurrentCooldown);
+		ShooterController->ShowInfo(TEXT("On cooldown!"));
 	}
 }
 
@@ -533,7 +536,7 @@ void AShooterCharacter::AbilityTwoTick()
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
+	// UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
 
 	if (CurrentTick >= TickLimit)
 	{
@@ -562,7 +565,8 @@ void AShooterCharacter::OnAbilityUlt()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityUltCurrentCooldown);
+		// UE_LOG(LogTemp, Warning, TEXT("On cooldown: %f"), AbilityUltCurrentCooldown);
+		ShooterController->ShowInfo(TEXT("On cooldown!"));
 	}
 
 }
@@ -590,6 +594,11 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 
 	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), HealthComp->GetHealth());
 
+	if (bIsAlive == true)
+	{
+		ShooterController->ShowBloodEffect();
+	}
+
 	if (HealthComp->GetHealth() <= 0)
 	{
 		HandleDeath();
@@ -612,6 +621,7 @@ void AShooterCharacter::HandleDeath()
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Player is dead"));
 
+		ShooterController->ShowDeathEffect();
 		SurvivalGameMode->EndGame(false);
 	}
 }

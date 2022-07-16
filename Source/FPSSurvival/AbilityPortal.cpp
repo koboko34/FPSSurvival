@@ -76,7 +76,7 @@ void AAbilityPortal::SpawnProjectile()
 
 void AAbilityPortal::HandleDestruction()
 {
-	UE_LOG(LogTemp, Warning, TEXT("HandleDestruction() called"));
+	// UE_LOG(LogTemp, Warning, TEXT("HandleDestruction() called"));
 	HandleNiagaraDestruction();
 	Destroy();
 }

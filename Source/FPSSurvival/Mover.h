@@ -38,5 +38,7 @@ private:
 	bool bShouldMove;
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	float MoveTime = 1;
+
+	void HandleFinish();
 		
 };

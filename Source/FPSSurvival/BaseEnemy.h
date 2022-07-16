@@ -72,4 +72,6 @@ private:
 	class ASurvivalGameMode* SurvivalGameMode;
 
 	float BonusHealthPerRound = 25;
+
+	class AShooterPlayerController* ShooterController;
 };

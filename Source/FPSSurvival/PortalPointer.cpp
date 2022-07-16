@@ -2,22 +2,23 @@
 
 
 #include "PortalPointer.h"
-#include "Components/PointLightComponent.h"
+// #include "Components/PointLightComponent.h"
 
 // Sets default values
 APortalPointer::APortalPointer()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bStartWithTickEnabled = false;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	SetRootComponent(Mesh);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->CastShadow = false;
 
-	PointLight = CreateDefaultSubobject<UPointLightComponent>("Point Light");
-	PointLight->SetupAttachment(RootComponent);
-	PointLight->CastShadows = false;
+	// PointLight = CreateDefaultSubobject<UPointLightComponent>("Point Light");
+	// PointLight->SetupAttachment(RootComponent);
+	// PointLight->CastShadows = false;
 
 }
 

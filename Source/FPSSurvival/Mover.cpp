@@ -42,4 +42,11 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 void UMover::Move()
 {
 	bShouldMove = true;
+	FTimerHandle Handle;
+	GetWorld()->GetTimerManager().SetTimer(Handle, this, &UMover::HandleFinish, MoveTime + 1, false);
+}
+
+void UMover::HandleFinish()
+{
+    SetComponentTickEnabled(false);
 }

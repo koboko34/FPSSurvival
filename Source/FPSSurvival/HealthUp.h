@@ -13,6 +13,8 @@ UCLASS()
 class FPSSURVIVAL_API AHealthUp : public ABasePickUp
 {
 	GENERATED_BODY()
+
+	AHealthUp();
 	
 protected:
 

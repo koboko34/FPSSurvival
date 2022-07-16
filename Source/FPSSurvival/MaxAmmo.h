@@ -13,6 +13,8 @@ UCLASS()
 class FPSSURVIVAL_API AMaxAmmo : public ABasePickUp
 {
 	GENERATED_BODY()
+
+	AMaxAmmo();
 	
 protected:
 

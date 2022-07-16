@@ -12,7 +12,10 @@
 
 ARifle::ARifle()
 {
-    MuzzleFlashParticleComp = CreateDefaultSubobject<UParticleSystemComponent>("Muzzle Flash Particle");
+    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bStartWithTickEnabled = false;
+	
+	MuzzleFlashParticleComp = CreateDefaultSubobject<UParticleSystemComponent>("Muzzle Flash Particle");
 	MuzzleFlashParticleComp->SetupAttachment(GetMuzzle());
 	MuzzleFlashParticleComp->SetVisibility(false);
 }
@@ -91,12 +94,12 @@ void ARifle::PullTrigger(AShooterCharacter* Player)
 			CurrentPenCount++;
 		}
 
-		if (bHitEnemy)
-		{
-			ShowHitmarker();
-			FTimerHandle HitmarkerHandle;
-			GetWorldTimerManager().SetTimer(HitmarkerHandle, this, &ABaseGun::HideHitmarker, 0.15, false);
-		}
+		// if (bHitEnemy)
+		// {
+		// 	ShowHitmarker();
+		// 	FTimerHandle HitmarkerHandle;
+		// 	GetWorldTimerManager().SetTimer(HitmarkerHandle, this, &ABaseGun::HideHitmarker, 0.15, false);
+		// }
 
 		ShowMuzzleFlash();
 	}

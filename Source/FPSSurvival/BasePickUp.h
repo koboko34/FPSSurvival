@@ -31,7 +31,7 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// virtual void Tick(float DeltaTime) override;
 
 	UStaticMeshComponent* GetMesh() { return Mesh; }
 	UCapsuleComponent* GetCapsuleComponent() { return Capsule; }

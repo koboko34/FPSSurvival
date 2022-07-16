@@ -6,6 +6,12 @@
 #include "ShooterCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
+AMaxAmmo::AMaxAmmo()
+{
+    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bStartWithTickEnabled = false;
+}
+
 void AMaxAmmo::BeginPlay()
 {
     Super::BeginPlay();

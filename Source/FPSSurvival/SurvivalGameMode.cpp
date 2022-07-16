@@ -7,6 +7,12 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
+ASurvivalGameMode::ASurvivalGameMode()
+{
+    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bStartWithTickEnabled = false;
+}
+
 void ASurvivalGameMode::BeginPlay()
 {
     Super::BeginPlay();

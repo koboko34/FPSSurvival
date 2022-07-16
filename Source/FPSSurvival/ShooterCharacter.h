@@ -96,7 +96,7 @@ private:
 	ALauncher* LauncherGun;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float SprintSpeed = 1200;
+	float SprintSpeed = 1000;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float StrafeSpeed = 600;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))

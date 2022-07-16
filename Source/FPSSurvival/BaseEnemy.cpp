@@ -12,6 +12,7 @@
 #include "SurvivalGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "HealthUp.h"
+#include "ShooterPlayerController.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -30,12 +31,13 @@ void ABaseEnemy::BeginPlay()
 	Super::BeginPlay();
 
 	SurvivalGameMode = Cast<ASurvivalGameMode>(UGameplayStatics::GetGameMode(this));
+	ShooterController = Cast<AShooterPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
 	HealthComp->SetMaxHealth(HealthComp->GetMaxHealth() + (SurvivalGameMode->GetRound() * BonusHealthPerRound) - BonusHealthPerRound);
 	HealthComp->SetHealth(HealthComp->GetMaxHealth());
 
 	ClearStunDelegate.BindUObject(this, &ABaseEnemy::ClearStun);
-	StartExitStunDelegate.BindUObject(this, &ABaseEnemy::StartExitStun);	
+	StartExitStunDelegate.BindUObject(this, &ABaseEnemy::StartExitStun);
 }
 
 // // Called every frame
@@ -60,6 +62,10 @@ float ABaseEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const &Dama
 		{
 			HandleDeath();
 		}
+		else
+		{
+			ShooterController->ShowHitmarker();
+		}
 
 		SurvivalGameMode->AddPoints(10);
 	}
@@ -80,8 +86,9 @@ void ABaseEnemy::HandleDeath()
 	if (DeathSound)
 	{
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
-
 	}
+
+	ShooterController->ShowKillmarker();
 
 	// spawning pickup
 	int i = FMath::RandRange(0, 99);

@@ -11,7 +11,8 @@
 ABasePickUp::ABasePickUp()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>("Capsule");
 	SetRootComponent(Capsule);
@@ -38,11 +39,11 @@ void ABasePickUp::BeginPlay()
 }
 
 // Called every frame
-void ABasePickUp::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+// void ABasePickUp::Tick(float DeltaTime)
+// {
+// 	Super::Tick(DeltaTime);
 
-}
+// }
 
 void ABasePickUp::DestroySelf()
 {

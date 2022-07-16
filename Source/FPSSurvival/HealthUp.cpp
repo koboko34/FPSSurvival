@@ -6,6 +6,12 @@
 #include "ShooterCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
+AHealthUp::AHealthUp()
+{
+    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bStartWithTickEnabled = false;
+}
+
 void AHealthUp::BeginPlay()
 {
     Super::BeginPlay();

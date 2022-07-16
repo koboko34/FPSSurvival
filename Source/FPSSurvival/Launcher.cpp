@@ -16,7 +16,10 @@
 
 ALauncher::ALauncher()
 {
-    MuzzleFlashParticle = CreateDefaultSubobject<UParticleSystemComponent>("Muzzle Flash Particle");
+    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bStartWithTickEnabled = false;
+	
+	MuzzleFlashParticle = CreateDefaultSubobject<UParticleSystemComponent>("Muzzle Flash Particle");
 	MuzzleFlashParticle->SetupAttachment(GetMesh(), TEXT("MuzzleFlashSocket"));
 	MuzzleFlashParticle->SetVisibility(false);
 }
@@ -51,8 +54,6 @@ void ALauncher::PullTrigger(AShooterCharacter* Player)
         Target = Hit.ImpactPoint;
 		// UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), *Hit.GetComponent()->GetName());
 	}
-
-
 
     FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetMuzzle()->GetComponentLocation(), Target);
 

@@ -13,8 +13,8 @@ class FPSSURVIVAL_API APortalPointer : public AActor
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
-	UPROPERTY(EditAnywhere)
-	class UPointLightComponent* PointLight;
+	// UPROPERTY(EditAnywhere)
+	// class UPointLightComponent* PointLight;
 	
 public:	
 	// Sets default values for this actor's properties

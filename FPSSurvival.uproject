@@ -30,6 +30,13 @@
 				"Mac",
 				"Linux"
 			]
+		},
+		{
+			"Name": "RenderDocPlugin",
+			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"Windows"
 	]
 }

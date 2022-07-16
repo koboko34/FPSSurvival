@@ -74,11 +74,6 @@ public:
 	int GetReserveAmmo() const { return ReserveAmmo; }
 	UFUNCTION(BlueprintPure)
 	bool IsReloading() const { return bIsReloading; }
-	UFUNCTION(BlueprintPure)
-	bool GetMakeHitmarkerVisible() const { return bMakeHitmarkerVisible; }
-
-	void ShowHitmarker();
-	void HideHitmarker();
 
 	UFUNCTION(BlueprintPure)
 	float ReloadProgress() const;

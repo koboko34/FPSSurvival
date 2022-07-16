@@ -14,6 +14,8 @@ class FPSSURVIVAL_API ASurvivalGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	ASurvivalGameMode();
+
 public:
 
 	UFUNCTION(BlueprintPure)
